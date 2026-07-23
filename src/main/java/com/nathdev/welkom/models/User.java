@@ -30,11 +30,10 @@ public class User {
     private LocalDateTime updatedAt;
 //    private LocalDateTime lastLogin;
     private String activated;
-    private UserStatus status;
+    private UserStatus status =  UserStatus.ACTIVE;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Event> events;

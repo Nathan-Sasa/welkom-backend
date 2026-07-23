@@ -1,10 +1,11 @@
 package com.nathdev.welkom.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.Map;
 
 @Entity
 @Data
@@ -14,7 +15,11 @@ public class Template {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String title;
-    private String description;
+    private String name;
+    private String category;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name="defaultConfig")
+    private Map<String, Object> defaultConfig;
 
 }

@@ -1,5 +1,7 @@
 package com.nathdev.welkom.security;
 
+import com.nathdev.welkom.enums.UserStatus;
+import com.nathdev.welkom.models.Profile;
 import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.UserRepository;
 import jakarta.servlet.ServletException;
@@ -14,6 +16,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -41,24 +44,31 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         if (userOptional.isPresent()) {
             // utilisateur existe déjà, on le répère
-
             user = userOptional.get();
         } else {
             // Premier login ! On crée une nouvelle entité User dans la base
 
             user = new User();
             user.setEmail(email);
-            //nom google pour username
             user.setUsername(name.replace(" ", "").toLowerCase());
-            user.setRole("USER");
+            user.setRole("WLK_USER");
             user.setPassword(null);
+            user.setStatus(UserStatus.ACTIVE);
 
+            Profile profile = new Profile();
+
+            profile.setUser(user);
+            profile.setUsername(name);
+            profile.setEmail(email);
+            profile.setLastLogin(LocalDateTime.now());
+
+            user.setProfile(profile);
             userRepository.save(user);
         }
 
         // Generation des token
-        String accessToken = jwtUtils.generateAccessToken(user.getUsername(), "ROLE_" + user.getRole(), user.getEmail());
-        String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
+        String accessToken = jwtUtils.generateAccessToken(user.getEmail(), user.getRole(), user.getEmail());
+        String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
         // injection des cookies
         ResponseCookie accessCookie = jwtUtils.generateCookie("welkom_access", accessToken, jwtExpirationTime);

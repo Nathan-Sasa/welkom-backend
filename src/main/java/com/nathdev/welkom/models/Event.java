@@ -4,7 +4,9 @@ import com.nathdev.welkom.enums.Payment_status;
 import com.nathdev.welkom.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,13 +17,6 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @OneToOne
-    @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
 
     @Column(nullable = false)
     private String title;
@@ -31,9 +26,41 @@ public class Event {
     @Column(nullable = false)
     private String date_event;
 
-    @OneToMany(mappedBy = "event")
+    private Status status;
+    private Payment_status  payment_status = Payment_status.PENDING;
+
+    private LocalDateTime date_event_start;
+    private LocalDateTime date_event_end;
+
+    @Column(name = "estimated_guests", nullable = false)
+    private int estimated_guests;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @OneToOne(cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Guest> guests;
 
-    private Status status;
-    private Payment_status  payment_status;
+    @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Tables> tables;
+
+    @OneToOne(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
+    private CustomizerTemplates customizerTemplates;
+
+
+    @PrePersist
+    private void onCreate(){
+        date_event_start = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void onUpdate(){
+        date_event_end = LocalDateTime.now();
+    }
 }
