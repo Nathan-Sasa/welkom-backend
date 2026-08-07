@@ -4,34 +4,41 @@ package com.nathdev.welkom.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 
 @Entity
 @Data
-@Table(name = "customizerTemplates")
-public class CustomizerTemplates {
+@Table(name = "customizedTemplates")
+public class CustomizedTemplates {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @OneToOne
-    @JoinColumn(name = "event_id", nullable = false, unique = true)
-    private Event event;
+    @UuidGenerator
+    @Column(unique = true, nullable = false)
+    private String uuid;
 
     @Column(name = "template_id", nullable = false)
-    private Long templateId;
+    private long templateId;
 
-    @Column(name = "custom_background_url")
-    private String customBackgroundUrl;
+    @Column(name = "custom_image1")
+    private String customImage1;
 
-    @Column(name = "cadre_url")
-    private String cadre;
+    @Column(name = "custom_image2")
+    private String customImage2;
 
-    @Column(name = "has_cadre")
-    private boolean hasCadre = false;
+    @Column(name = "custom_image3")
+    private String customImage3;
+
+    @Column(name = "custom_has_cadre")
+    private boolean customHasCadre;
+
+    @Column(name = "custom_cadre_url")
+    private String customCadreUrl;
 
     @Column(name = "custom_font_title")
     private String customFontTitle;
@@ -45,8 +52,14 @@ public class CustomizerTemplates {
     @Column(name = "custom_color_accent", length = 7)
     private String customColorAccent;
 
+    @OneToOne
+    @JoinColumn(name = "event_id", nullable = false, unique = true)
+    private Event event;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "content_data")
     private Map<String, Object> contentData;
 
+//    public Boolean hasCadre() {
+//    }
 }

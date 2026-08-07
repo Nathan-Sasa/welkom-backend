@@ -3,7 +3,6 @@ package com.nathdev.welkom.controllers;
 import com.nathdev.welkom.dto.LoginRequest;
 import com.nathdev.welkom.dto.RegisterRequest;
 import com.nathdev.welkom.dto.user.AuthResponseDto;
-import com.nathdev.welkom.dto.user.ProfileDto;
 import com.nathdev.welkom.enums.UserStatus;
 import com.nathdev.welkom.models.Profile;
 import com.nathdev.welkom.models.User;
@@ -50,10 +49,10 @@ public class AuthController {
     @Value("${jwt.refreshExpire}")
     private long jwtRefreshExpire;
 
+    //1. REGISTER
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         try {
-            // Utilisation de structures Map.of pour renvoyer du JSON strict et éviter les conflits CORS
             if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Ce nom d'utilisateur est déjà utilisé."));
             }
@@ -81,7 +80,6 @@ public class AuthController {
             String accessToken = jwtUtils.generateAccessToken(user.getUsername(), "ROLE_" + user.getRole(), user.getEmail());
             String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
 
-
             // Injection des cookies sécurisés
             ResponseCookie accessCookie = jwtUtils.generateCookie("welkom_access", accessToken, jwtExpirationTime);
             ResponseCookie refreshCookie = jwtUtils.generateCookie("welkom_refresh", refreshToken, jwtRefreshExpire);
@@ -100,20 +98,24 @@ public class AuthController {
         }
     }
 
+    // 2. LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        log.info("Login request : {}", loginRequest.email());
         try {
             // Spring Security valide ou lève directement une exception si l'authentification échoue
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
             );
 
+            log.info("Authentication Success : {}", authentication.getName());
+
             User user = userRepository.findByEmail(loginRequest.email())
                     .orElseThrow(() -> new NoSuchElementException("Aucun utilisateur trouvé avec l'e-mail : " + loginRequest.email()));
 
             // Génération des tokens
-            String accessToken = jwtUtils.generateAccessToken(user.getEmail(), user.getRole(), user.getEmail());
-            String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
+            String accessToken = jwtUtils.generateAccessToken(user.getUsername(), user.getRole(), user.getEmail());
+            String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
 
             // Injection des cookies sécurisés
             ResponseCookie accessCookie = jwtUtils.generateCookie("welkom_access", accessToken, jwtExpirationTime);
@@ -138,11 +140,12 @@ public class AuthController {
         }
     }
 
+    //3. REFRESH
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtils.getJwtFromCookies(request, "welkom_refresh");
 
-        if (refreshToken != null && !jwtUtils.isTokenExpire(refreshToken)) {
+        if (refreshToken != null && jwtUtils.isTokenExpire(refreshToken)) {
             String username = jwtUtils.extractUsername(refreshToken);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -179,12 +182,17 @@ public class AuthController {
             return userRepository.findByEmail(usernameOrEmail)
                     .or(() -> userRepository.findByUsername(usernameOrEmail))
                     .map(user -> {
-//                        Map<String, Object> userData = new HashMap<>();
-//                        userData.put("username", user.getUsername());
-//                        userData.put("email", user.getEmail());
-//                        userData.put("role", user.getRole());
-//                        return ResponseEntity.ok(userData);
-                        return ResponseEntity.ok(AuthResponseDto.fromEntity(user));
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("username", user.getUsername());
+                        userData.put("email", user.getEmail());
+                        userData.put("role", user.getRole());
+
+                        if (user.getProfile() != null) {
+                            userData.put("first_name", user.getProfile().getFirst_name());
+                            userData.put("avatar", user.getProfile().getAvatar());
+                        }
+
+                        return ResponseEntity.ok(userData);
                     })
                     .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
         }

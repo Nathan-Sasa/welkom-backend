@@ -9,7 +9,7 @@ import lombok.Data;
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(nullable = false)
     private String address;
@@ -17,7 +17,8 @@ public class Location {
     private int lat;
     private int lon;
 
-    @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
 }

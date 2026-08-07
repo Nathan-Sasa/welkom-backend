@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -33,9 +34,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private long jwtRefreshExpirationTime;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+    public void onAuthenticationSuccess(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, Authentication authentication)
         throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
+        assert oAuth2User != null;
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
@@ -50,6 +53,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             user = new User();
             user.setEmail(email);
+
+            assert name != null;
             user.setUsername(name.replace(" ", "").toLowerCase());
             user.setRole("WLK_USER");
             user.setPassword(null);
@@ -67,8 +72,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         // Generation des token
-        String accessToken = jwtUtils.generateAccessToken(user.getEmail(), user.getRole(), user.getEmail());
-        String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
+        String accessToken = jwtUtils.generateAccessToken(user.getUsername(), user.getRole(), user.getEmail());
+        String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
 
         // injection des cookies
         ResponseCookie accessCookie = jwtUtils.generateCookie("welkom_access", accessToken, jwtExpirationTime);
@@ -78,6 +83,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
         //redirection vers le Frontend
-        getRedirectStrategy().sendRedirect(request, response, "http://localhost:4200/dashboard");
+        getRedirectStrategy().sendRedirect(request, response,"http://localhost:4200/dashboard");
     }
 }

@@ -2,6 +2,9 @@ package com.nathdev.welkom.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -9,32 +12,49 @@ import lombok.Data;
 public class Guest {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
+    @UuidGenerator
+    @Column(unique = true, nullable = false)
+    private String uuid;
+
+    @Column(name = "first_name", nullable = false, length = 50)
     private String first_name;
 
-    @Column(nullable = false)
+    @Column(name = "last_name",  nullable = false, length = 50)
     private String last_name;
 
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "telephone")
     private String telephone;
 
     private String category;
-    private String table;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
     
     @OneToOne
-    @JoinColumn(name = "table_id")
+    @JoinColumn(name = "tables_id", nullable = false)
     private Tables tables;
 
     @OneToOne(mappedBy = "guest", cascade = CascadeType.ALL)
     private Invitation invitation;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
 }

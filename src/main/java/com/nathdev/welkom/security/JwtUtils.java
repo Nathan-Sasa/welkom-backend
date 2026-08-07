@@ -5,12 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +22,7 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtUtils.class);
     @Value("${jwt.secreteKey}")
     private String jwtSecretKey;
 
@@ -31,7 +35,7 @@ public class JwtUtils {
     public String generateAccessToken(String username, String role, String email) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
-        return createToken(claims, username, email, jwtExpirationTime);
+        return createToken(claims, email, email, jwtExpirationTime);
     }
 
     public String generateRefreshToken(String username) {
@@ -39,11 +43,17 @@ public class JwtUtils {
     }
 
     private String createToken(Map<String, Object> claims, String subject, String email, long expiration) {
+
+        Instant now = Instant.now();
+        Instant expiry = now.plusMillis(expiration);
+
         var builder = Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiry))
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignKey());
 
         if (email != null) {
@@ -87,11 +97,14 @@ public class JwtUtils {
 
     public Boolean validateToken(String token, String expectedUsername) {
         final String username = extractUsername(token);
-        return (username.equals(expectedUsername) && !isTokenExpire(token));
+        boolean isValid = username.equals(expectedUsername) && !isTokenExpire(token);
+        log.info("jwtToken validation result: {}", isValid);
+        return isValid;
     }
 
     public boolean isTokenExpire(String token) {
-        return extractExpirationDate(token).before(new Date());
+        Date expiration = extractExpirationDate(token);
+        return expiration.before(Date.from(Instant.now()));
     }
 
     private Date extractExpirationDate(String token) {

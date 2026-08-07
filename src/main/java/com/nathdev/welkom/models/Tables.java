@@ -9,7 +9,7 @@ import lombok.Data;
 public class Tables {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "table_name")
     private String tableName;
@@ -18,9 +18,9 @@ public class Tables {
     private int maxSeats = 8;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "events_id")
+    @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToOne(mappedBy = "tables")
+    @OneToOne(mappedBy = "tables", cascade = CascadeType.ALL)
     private Guest guest;
 }

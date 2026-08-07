@@ -1,10 +1,10 @@
 package com.nathdev.welkom.models;
 
+import com.nathdev.welkom.enums.EventsStatus;
 import com.nathdev.welkom.enums.Payment_status;
-import com.nathdev.welkom.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,8 +15,14 @@ import java.util.List;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
+    @UuidGenerator
+    @Column(unique = true, nullable = false)
+    private String uuid;
+
+    @Column(name = "secure_id", unique = true,  nullable = false)
+    private String secureId;
 
     @Column(nullable = false)
     private String title;
@@ -26,23 +32,27 @@ public class Event {
     @Column(nullable = false)
     private String date_event;
 
-    private Status status;
-    private Payment_status  payment_status = Payment_status.PENDING;
+    private Payment_status  payment_status;
+    private EventsStatus status;
 
+
+    private String image;
     private LocalDateTime date_event_start;
     private LocalDateTime date_event_end;
 
     @Column(name = "estimated_guests", nullable = false)
-    private int estimated_guests;
+    private long estimated_guests;
+
+    @Column(name = "security_access_key", nullable = false)
+    private String event_key;
 
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL,  fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
+    private List<Location> location;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Guest> guests;
@@ -50,17 +60,24 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Tables> tables;
 
-    @OneToOne(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
-    private CustomizerTemplates customizerTemplates;
+    @OneToOne(mappedBy = "event", cascade =  CascadeType.ALL)
+    private CustomizedTemplates customizedTemplates;
 
+    @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Invitation> invitations;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
     private void onCreate(){
-        date_event_start = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     private void onUpdate(){
-        date_event_end = LocalDateTime.now();
+
+        updatedAt = LocalDateTime.now();
     }
 }

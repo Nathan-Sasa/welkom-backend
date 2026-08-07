@@ -14,19 +14,11 @@ public class Invitation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
     private String uuid;
-
-    @OneToOne
-    @JoinColumn(name = "guest_id", nullable = false, unique = true)
-    private Guest guest;
-
-    @ManyToOne
-    @JoinColumn(name = "customized_template_id", nullable = false)
-    private Template customizedTemplate;
 
     @Column(name = "rsvp_status", length = 20)
     private Rsvp_status rsvpStatus = Rsvp_status.PENDING;
@@ -36,4 +28,16 @@ public class Invitation {
 
     @Column(name="scanned_at")
     private LocalDateTime scannedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
+
+    @OneToOne
+    @JoinColumn(name = "guest_id", nullable = false)
+    private Guest guest;
+
+    @OneToOne
+    @JoinColumn(name = "customized_template_id", nullable = false)
+    private Template customizedTemplate;
 }

@@ -1,6 +1,6 @@
 package com.nathdev.welkom.repositories;
 
-import com.nathdev.welkom.models.User;
+import com.nathdev.welkom.models.Template;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<@NotNull User, @NotNull Long> {
-    Optional<User> findByUsername(String username);
-    Optional<User> findByEmail(String email);
+public interface TemplateRepository extends JpaRepository<@NotNull Template, @NotNull Long> {
+
 }
