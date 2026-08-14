@@ -11,22 +11,44 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class TemplateService {
     private final TemplateRepository templateRepository;
 
-    public ResponseEntity<@NotNull List<Template>> getTemplates(){
-        return new ResponseEntity<>(templateRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<@NotNull List<Map<Object,Object>>> getTemplates(){
+        List<Template> templates = templateRepository.findAll();
+
+        List <Map<Object,Object>> tempList = new ArrayList<>();
+
+        templates.forEach(template -> {
+            Map <Object, Object> tempMap = new HashMap<>();
+
+            tempMap.put("id", template.getUuid());
+            tempMap.put("name", template.getName());
+            tempMap.put("category", template.getCategory());
+            tempMap.put("catalogueImgUrl", template.getCatalogueImgUrl());
+            tempMap.put("colorPrimary", template.getColorPrimary());
+            tempMap.put("colorAccent", template.getColorAccent());
+            tempMap.put("fontTitle", template.getFontTitle());
+            tempMap.put("fontBody", template.getFontBody());
+            tempMap.put("image1", template.getImage1());
+            tempMap.put("image2", template.getImage2());
+            tempMap.put("image3", template.getImage3());
+            tempMap.put("hasCadre", template.isHasCadre());
+            tempMap.put("defaultConfig", template.getDefaultConfig());
+
+            tempList.add(tempMap);
+        });
+
+
+        return new ResponseEntity<>(tempList, HttpStatus.OK);
     }
 
-    public ResponseEntity<@NotNull Template> getTemplateById(long id){
-        Optional <Template> template = templateRepository.findById(id);
+    public ResponseEntity<@NotNull Template> getTemplateById(UUID uuid){
+        Optional <Template> template = templateRepository.findByUuid(uuid);
 
         return template.map(value -> new ResponseEntity<>(
                 value, HttpStatus.OK
@@ -61,8 +83,8 @@ public class TemplateService {
         templateRepository.save(template);
     }
 
-    public Template updateTemplate(Long id, Template template) {
-        Optional <Template> existedTemplate = templateRepository.findById(id);
+    public Template updateTemplate(UUID uuid, Template template) {
+        Optional <Template> existedTemplate = templateRepository.findByUuid(uuid);
 
         if (existedTemplate.isPresent()) {
             Template update = existedTemplate.get();

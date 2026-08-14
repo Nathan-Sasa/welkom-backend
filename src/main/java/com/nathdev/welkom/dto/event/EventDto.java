@@ -34,17 +34,17 @@ public class EventDto {
         eventDto.id = event.getId();
         eventDto.title = event.getTitle();
         eventDto.description = event.getDescription();
-        eventDto.date_event = event.getDate_event();
-        eventDto.payment_status = event.getPayment_status();
+        eventDto.date_event = event.getDateEvent();
+        eventDto.payment_status = event.getPaymentStatus();
         eventDto.event_status = event.getStatus();
         eventDto.image = event.getImage();
-        eventDto.estimated_guests = event.getEstimated_guests();
+        eventDto.estimated_guests = event.getEstimatedGuests();
 //        eventDto.location = event.getLocation().getAddress();
 //        eventDto.lat = event.getLocation().getLat();
 //        eventDto.lng = event.getLocation().getLon();
-        eventDto.date_event_start = event.getDate_event_start();
-        eventDto.date_event_end = event.getDate_event_end();
-        eventDto.event_key = event.getEvent_key();
+        eventDto.date_event_start = event.getDateEventStart();
+        eventDto.date_event_end = event.getDateEventEnd();
+        eventDto.event_key = event.getSecurityEventKey();
 
         return eventDto;
     }

@@ -29,22 +29,27 @@ public class Event {
 
     private String description;
 
-    @Column(nullable = false)
-    private String date_event;
+    @Column(name = "date_event",nullable = false)
+    private String dateEvent;
 
-    private Payment_status  payment_status;
+    @Column(name = "payment_status")
+    private Payment_status  paymentStatus;
+
     private EventsStatus status;
 
-
     private String image;
-    private LocalDateTime date_event_start;
-    private LocalDateTime date_event_end;
+
+    @Column(name = "date_event_start")
+    private LocalDateTime dateEventStart;
+
+    @Column(name = "date_event_end")
+    private LocalDateTime dateEventEnd;
 
     @Column(name = "estimated_guests", nullable = false)
-    private long estimated_guests;
+    private long estimatedGuests;
 
     @Column(name = "security_access_key", nullable = false)
-    private String event_key;
+    private String securityEventKey;
 
 
     @ManyToOne

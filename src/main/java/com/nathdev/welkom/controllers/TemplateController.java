@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -27,22 +28,20 @@ public class TemplateController {
     private final UserDetailsService userDetailsService;
 
     @GetMapping("/list")
-    public ResponseEntity<@NotNull List<Template>> getAllTemplates() {
+    public ResponseEntity<@NotNull List<Map<Object,Object>>> getAllTemplates() {
         return templateService.getTemplates();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<@NotNull Template> getTemplateById(@PathVariable Long id) {
-        if (id == null) {
+    @GetMapping("/{uuid}")
+    public ResponseEntity<@NotNull Template> getTemplateById(@PathVariable UUID uuid) {
+        if (uuid == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return templateService.getTemplateById(id);
+        return templateService.getTemplateById(uuid);
     }
 
     @PostMapping("/create")
     public ResponseEntity<@NotNull Template> createInvitation(@RequestBody Template template) {
-
-        log.info("Creating invitation");
 
         if (template.getName() != null) {
             templateService.createTemplate(template);
@@ -51,7 +50,7 @@ public class TemplateController {
         return new ResponseEntity<>(new Template(), HttpStatus.BAD_REQUEST);
     }
 
-    @PatchMapping("/update/{id}")
+    @PatchMapping("/update/{uuid}")
     public ResponseEntity<@NotNull Template> updateTemplate(
             HttpServletRequest cookie,
             @PathVariable Long id,

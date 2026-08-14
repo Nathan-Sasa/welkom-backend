@@ -6,6 +6,7 @@ import com.nathdev.welkom.models.Event;
 import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.EventRepository;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class EventService {
     private EventRepository eventRepository;
     private GenerateKeyService generateKeyService;
 
-    public Event createEvent(
+    public void createEvent(
             User user,
             Event event
             ) {
@@ -34,19 +35,34 @@ public class EventService {
         if(getEvent.isEmpty()){
 
             event.setUser(user);
-            event.setTitle(event.getTitle());
-            event.setDescription(event.getDescription());
-            event.setDate_event(event.getDate_event());
-            event.setEstimated_guests(event.getEstimated_guests());
-            event.setSecureId(generateKeyService.generateShortNumberKey());
-            event.setStatus(EventsStatus.PENDING);
-            event.setPayment_status(Payment_status.PENDING);
-            eventRepository.save(event);
 
-            return event;
+            if (event.getTitle() != null) {
+                event.setTitle(event.getTitle());
+            }
+            if (event.getDescription() != null) {
+                event.setDescription(event.getDescription());
+            }
+            if (event.getDateEvent() != null) {
+                event.setDateEvent(event.getDateEvent());
+            }
+
+//            if (event.getEstimatedGuests() > 0){
+//                event.setEstimatedGuests(event.getEstimatedGuests());
+//            }
+
+
+            long i = 250;
+
+            event.setEstimatedGuests(i);
+            event.setStatus(EventsStatus.PENDING);
+            event.setPaymentStatus(Payment_status.PENDING);
+            event.setSecureId(generateKeyService.generateShortNumberKey());
+            event.setSecurityEventKey(generateKeyService.generateSecureKey());
+            eventRepository.save(event);
+            return;
         }
 
-        return  eventRepository.save(event);
+        eventRepository.save(event);
     }
 
     public Event updateEvent(String event_id, Map<String, Object> patch) {

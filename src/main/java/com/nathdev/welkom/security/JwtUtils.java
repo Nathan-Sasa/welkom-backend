@@ -97,9 +97,8 @@ public class JwtUtils {
 
     public Boolean validateToken(String token, String expectedUsername) {
         final String username = extractUsername(token);
-        boolean isValid = username.equals(expectedUsername) && !isTokenExpire(token);
-        log.info("jwtToken validation result: {}", isValid);
-        return isValid;
+        //        log.info("jwtToken validation result: {}", isValid);
+        return username.equals(expectedUsername) && !isTokenExpire(token);
     }
 
     public boolean isTokenExpire(String token) {

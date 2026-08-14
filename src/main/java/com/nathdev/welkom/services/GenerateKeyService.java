@@ -8,6 +8,8 @@ import java.security.SecureRandom;
 public class GenerateKeyService {
 
 //    Générer une courte id de 7 chiffre
+//    la clé d'en-tête, le header. À envoyer dans le header de chaque requette pour retrouver les données correspondantes des chaque événement.
+
     public String generateShortNumberKey(){
         String shortNumberKey = "0123456789";
         SecureRandom random = new SecureRandom();
@@ -23,7 +25,9 @@ public class GenerateKeyService {
 
 
 //    Générer un clé secrète
-    public String genererCleSecurite() {
+//    cette clé c'est pour pour la sécurité lors du checking.
+
+    public String generateSecureKey() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
         int keyLength = 14;

@@ -59,7 +59,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/api/v1/auth/login", "/login/**", "/oauth2/**", "/api/v1/templates/list").permitAll()
-                        .requestMatchers("/api/v1/auth/me").hasAuthority("ROLE_WLK_USER")
+//                        .requestMatchers("/api/v1/auth/me").hasAuthority("ROLE_WLK_USER")
+//                        .requestMatchers("/api/v1/templates/create").hasAuthority("ROLE_WLK_ADMIN")
+//                        .requestMatchers("/api/v1/event/create").hasAuthority("ROLE_WLK_USER")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -42,19 +42,19 @@ public class Template {
     private boolean hasCadre;
 
     @Column(name = "font_title")
-    private String customFontTitle;
+    private String fontTitle;
 
     @Column(name = "font_body")
-    private String customFontBody;
+    private String fontBody;
 
     @Column(name = "color_primary", length = 7)
-    private String customColorPrimary;
+    private String colorPrimary;
 
     @Column(name = "color_accent", length = 7)
-    private String customColorAccent;
+    private String colorAccent;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name="defaultConfig")
-    private Map<String, Object> defaultConfig;
+    @JdbcTypeCode(SqlTypes.LONGNVARCHAR)
+    @Column(name = "default_config")
+    private Map<String, Object> defaultConfig ;
 
 }

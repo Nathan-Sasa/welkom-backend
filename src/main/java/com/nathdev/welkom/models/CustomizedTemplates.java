@@ -23,7 +23,10 @@ public class CustomizedTemplates {
     private String uuid;
 
     @Column(name = "template_id", nullable = false)
-    private long templateId;
+    private String templateUuid;
+
+    private String name;
+    private String category;
 
     @Column(name = "custom_image1")
     private String customImage1;
@@ -56,7 +59,7 @@ public class CustomizedTemplates {
     @JoinColumn(name = "event_id", nullable = false, unique = true)
     private Event event;
 
-    @JdbcTypeCode(SqlTypes.JSON)
+    @JdbcTypeCode(SqlTypes.LONGNVARCHAR)
     @Column(name = "content_data")
     private Map<String, Object> contentData;
 

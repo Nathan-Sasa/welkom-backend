@@ -7,7 +7,9 @@ import com.nathdev.welkom.enums.UserStatus;
 import com.nathdev.welkom.models.Profile;
 import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.UserRepository;
+import com.nathdev.welkom.security.CustomDetailsService;
 import com.nathdev.welkom.security.JwtUtils;
+import com.nathdev.welkom.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -40,8 +43,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
+    private final CustomDetailsService customDetailsService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Value("${jwt.expire}")
     private long jwtExpirationTime;
@@ -50,6 +54,13 @@ public class AuthController {
     private long jwtRefreshExpire;
 
     //1. REGISTER
+//    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
+//        try {
+//            return userService.register(registerRequest, response);
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         try {
@@ -98,17 +109,27 @@ public class AuthController {
         }
     }
 
-    // 2. LOGIN
+//     2. LOGIN
+//    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+//        try {
+////             Spring Security valide ou lève directement une exception si l'authentification échoue
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
+//            );
+//            return userService.login(loginRequest, response);
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        log.info("Login request : {}", loginRequest.email());
+
         try {
             // Spring Security valide ou lève directement une exception si l'authentification échoue
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
             );
 
-            log.info("Authentication Success : {}", authentication.getName());
 
             User user = userRepository.findByEmail(loginRequest.email())
                     .orElseThrow(() -> new NoSuchElementException("Aucun utilisateur trouvé avec l'e-mail : " + loginRequest.email()));
@@ -131,6 +152,8 @@ public class AuthController {
             authLoginData.put("first_name", user.getProfile().getFirst_name());
             authLoginData.put("avatar", user.getProfile().getAvatar());
 
+            user.getProfile().setLastLogin(LocalDateTime.now());
+            userRepository.save(user);
 
             return ResponseEntity.status(HttpStatus.OK).body(authLoginData);
 //            return ResponseEntity.status(HttpStatus.OK).body(AuthResponseDto.fromEntity(user));
@@ -141,20 +164,29 @@ public class AuthController {
     }
 
     //3. REFRESH
+//    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+//        return userService.refreshToken(request, response);
+//    }
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtils.getJwtFromCookies(request, "welkom_refresh");
 
-        if (refreshToken != null && jwtUtils.isTokenExpire(refreshToken)) {
+        if (refreshToken != null && !jwtUtils.isTokenExpire(refreshToken)) {
             String username = jwtUtils.extractUsername(refreshToken);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = customDetailsService.loadUserByUsername(username);
 
-            if (jwtUtils.validateToken(refreshToken, userDetails.getUsername())) {
-                String newAccessToken = jwtUtils.generateAccessToken(userDetails.getUsername(), "WLK_USER", null);
-                ResponseCookie newAccessCookie = jwtUtils.generateCookie("welkom_access", newAccessToken, jwtExpirationTime);
-                response.addHeader(HttpHeaders.SET_COOKIE, newAccessCookie.toString());
-                return ResponseEntity.ok(Map.of("message", "Token mis à jour avec succès."));
+            Optional<User> user = userRepository.findByEmail(username);
+
+            if (user.isPresent()) {
+                if (jwtUtils.validateToken(refreshToken, userDetails.getUsername())) {
+                    String newAccessToken = jwtUtils.generateAccessToken(userDetails.getUsername(), user.get().getRole(), null);
+                    ResponseCookie newAccessCookie = jwtUtils.generateCookie("welkom_access", newAccessToken, jwtExpirationTime);
+                    response.addHeader(HttpHeaders.SET_COOKIE, newAccessCookie.toString());
+                    return ResponseEntity.ok(Map.of("message", "Token mis à jour."));
+                }
             }
+
+
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Jeton de rafraîchissement invalide ou expiré."));
     }
@@ -162,41 +194,11 @@ public class AuthController {
     // 4. DÉCONNEXION
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        ResponseCookie cleanAccess = jwtUtils.getCleanCookie("welkom_access");
-        ResponseCookie cleanRefresh = jwtUtils.getCleanCookie("welkom_refresh");
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cleanAccess.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, cleanRefresh.toString());
-
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Utilisateur déconnecté•e"));
+        return userService.logout(response);
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
-
-        String token = jwtUtils.getJwtFromCookies(request, "welkom_access");
-
-        if (token != null && !jwtUtils.isTokenExpire(token)) {
-            String usernameOrEmail = jwtUtils.extractUsername(token);
-
-            return userRepository.findByEmail(usernameOrEmail)
-                    .or(() -> userRepository.findByUsername(usernameOrEmail))
-                    .map(user -> {
-                        Map<String, Object> userData = new HashMap<>();
-                        userData.put("username", user.getUsername());
-                        userData.put("email", user.getEmail());
-                        userData.put("role", user.getRole());
-
-                        if (user.getProfile() != null) {
-                            userData.put("first_name", user.getProfile().getFirst_name());
-                            userData.put("avatar", user.getProfile().getAvatar());
-                        }
-
-                        return ResponseEntity.ok(userData);
-                    })
-                    .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Non connecté"));
+        return userService.currentUser(request);
     }
 }
