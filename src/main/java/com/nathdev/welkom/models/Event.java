@@ -4,60 +4,92 @@ import com.nathdev.welkom.enums.EventsStatus;
 import com.nathdev.welkom.enums.Payment_status;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "events")
-@Data
+@Getter
+@Setter
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @UuidGenerator
-    @Column(unique = true, nullable = false)
-    private String uuid;
+    @Column(
+            unique = true,
+            nullable = false
+    )
+    private UUID uuid;
 
-    @Column(name = "secure_id", unique = true,  nullable = false)
+    @Column(
+            name = "secure_id",
+            unique = true,
+            nullable = false
+    )
     private String secureId;
 
-    @Column(nullable = false)
+    @Column(
+            name = "security_access_key",
+            nullable = false,
+            unique = true
+    )
+    private String securityEventKey;
+
+    @Column(
+            nullable = false
+    )
     private String title;
 
     private String description;
 
-    @Column(name = "date_event",nullable = false)
-    private String dateEvent;
+    @Column(
+            name = "date_event_start",
+            nullable = false
+    )
+    private LocalDateTime dateEventStart;
 
-    @Column(name = "payment_status")
+    @Column(
+            name = "date_event_end",
+            nullable = false
+    )
+    private LocalDateTime dateEventEnd;
+
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "payment_status"
+    )
     private Payment_status  paymentStatus;
 
+    @Enumerated(EnumType.STRING)
     private EventsStatus status;
 
     private String image;
 
-    @Column(name = "date_event_start")
-    private LocalDateTime dateEventStart;
-
-    @Column(name = "date_event_end")
-    private LocalDateTime dateEventEnd;
-
     @Column(name = "estimated_guests", nullable = false)
-    private long estimatedGuests;
-
-    @Column(name = "security_access_key", nullable = false)
-    private String securityEventKey;
+    private Integer estimatedGuests;
 
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false
+    )
     private User user;
 
-    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
-    private List<Location> location;
+    @OneToOne(
+            mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Location location;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Guest> guests;
@@ -65,8 +97,12 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Tables> tables;
 
-    @OneToOne(mappedBy = "event", cascade =  CascadeType.ALL)
-    private CustomizedTemplates customizedTemplates;
+    @OneToOne(
+            mappedBy = "event",
+            cascade =  CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private CustomizedTemplates customizedTemplate;
 
     @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Invitation> invitations;

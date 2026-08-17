@@ -80,9 +80,9 @@ public class AuthController {
 
             Profile profile = new Profile();
             profile.setUser(user);
-            profile.setEmail(user.getEmail());
-            profile.setUsername(user.getUsername());
-            profile.setLastLogin(LocalDateTime.now());
+//            profile.setEmail(user.getEmail());
+//            profile.setUsername(user.getUsername());
+//            profile.setLastLogin(LocalDateTime.now());
 
             user.setProfile(profile);
             userRepository.save(user);
@@ -152,7 +152,7 @@ public class AuthController {
             authLoginData.put("first_name", user.getProfile().getFirst_name());
             authLoginData.put("avatar", user.getProfile().getAvatar());
 
-            user.getProfile().setLastLogin(LocalDateTime.now());
+//            user.getProfile().setLastLogin(LocalDateTime.now());
             userRepository.save(user);
 
             return ResponseEntity.status(HttpStatus.OK).body(authLoginData);

@@ -14,7 +14,7 @@ public class Invitation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
@@ -38,6 +38,9 @@ public class Invitation {
     private Guest guest;
 
     @OneToOne
-    @JoinColumn(name = "customized_template_id", nullable = false)
-    private Template customizedTemplate;
+    @JoinColumn(
+            name = "customized_template_id",
+            nullable = false
+    )
+    private CustomizedTemplates customizedTemplate;
 }

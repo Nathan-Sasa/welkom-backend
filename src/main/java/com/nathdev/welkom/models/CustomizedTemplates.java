@@ -1,32 +1,33 @@
 package com.nathdev.welkom.models;
 
 
+import com.nathdev.welkom.converter.JsonMapConverter;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "customizedTemplates")
 public class CustomizedTemplates {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
-    private String uuid;
-
-    @Column(name = "template_id", nullable = false)
-    private String templateUuid;
+    private UUID uuid;
 
     private String name;
-    private String category;
 
     @Column(name = "custom_image1")
     private String customImage1;
@@ -55,12 +56,24 @@ public class CustomizedTemplates {
     @Column(name = "custom_color_accent", length = 7)
     private String customColorAccent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "template_id",
+            nullable = false
+    )
+    private Template template;
+
     @OneToOne
-    @JoinColumn(name = "event_id", nullable = false, unique = true)
+    @JoinColumn(
+            name = "event_id",
+            nullable = false,
+            unique = true
+    )
     private Event event;
 
-    @JdbcTypeCode(SqlTypes.LONGNVARCHAR)
-    @Column(name = "content_data")
+//    @JdbcTypeCode(SqlTypes.LONGNVARCHAR)
+    @Convert(converter = JsonMapConverter.class)
+    @Column(name = "content_data", columnDefinition = "LONGTEXT")
     private Map<String, Object> contentData;
 
 //    public Boolean hasCadre() {

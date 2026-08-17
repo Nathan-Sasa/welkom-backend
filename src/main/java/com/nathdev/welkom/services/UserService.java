@@ -211,7 +211,7 @@ public class UserService {
 
     public void updateLastLoginTime(HttpServletRequest request) {
         User user = getUserAuth(request);
-        user.getProfile().setLastLogin(LocalDateTime.now());
+        user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
     }
 }

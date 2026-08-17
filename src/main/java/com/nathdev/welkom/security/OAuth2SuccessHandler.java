@@ -63,9 +63,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             Profile profile = new Profile();
 
             profile.setUser(user);
-            profile.setUsername(name);
-            profile.setEmail(email);
-            profile.setLastLogin(LocalDateTime.now());
+//            profile.setUsername(name);
+//            profile.setEmail(email);
+//            profile.setLastLogin(LocalDateTime.now());
 
             user.setProfile(profile);
             userRepository.save(user);

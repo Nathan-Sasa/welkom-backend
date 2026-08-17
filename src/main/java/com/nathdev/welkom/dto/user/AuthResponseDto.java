@@ -16,8 +16,8 @@ public class AuthResponseDto {
             User user
     ) {
         AuthResponseDto authResponseDto = new AuthResponseDto();
-        authResponseDto.setUsername(user.getProfile().getUsername());
-        authResponseDto.setEmail(user.getProfile().getEmail());
+//        authResponseDto.setUsername(user.getProfile().getUsername());
+//        authResponseDto.setEmail(user.getProfile().getEmail());
         authResponseDto.setAvatar(user.getProfile().getAvatar());
         authResponseDto.setFirst_name(user.getProfile().getFirst_name());
         authResponseDto.setRole(user.getRole());

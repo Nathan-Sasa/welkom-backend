@@ -1,4 +1,9 @@
 package com.nathdev.welkom.exceptions.event;
 
-public class EventNotFoundException {
+import java.util.UUID;
+
+public class EventNotFoundException extends RuntimeException {
+    public EventNotFoundException(UUID uuid) {
+        super("Aucun événement trouve avec cet uuid : " + uuid);
+    }
 }

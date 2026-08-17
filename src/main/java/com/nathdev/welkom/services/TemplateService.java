@@ -1,11 +1,12 @@
 package com.nathdev.welkom.services;
 
+import com.nathdev.welkom.dto.template.CreateTemplateRequest;
+import com.nathdev.welkom.dto.template.TemplateResponse;
+import com.nathdev.welkom.dto.template.UpdateTemplateRequest;
+import com.nathdev.welkom.exceptions.template.TemplateNotFoundException;
 import com.nathdev.welkom.models.Template;
 import com.nathdev.welkom.repositories.TemplateRepository;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -18,91 +19,100 @@ import java.util.*;
 public class TemplateService {
     private final TemplateRepository templateRepository;
 
-    public ResponseEntity<@NotNull List<Map<Object,Object>>> getTemplates(){
-        List<Template> templates = templateRepository.findAll();
-
-        List <Map<Object,Object>> tempList = new ArrayList<>();
-
-        templates.forEach(template -> {
-            Map <Object, Object> tempMap = new HashMap<>();
-
-            tempMap.put("id", template.getUuid());
-            tempMap.put("name", template.getName());
-            tempMap.put("category", template.getCategory());
-            tempMap.put("catalogueImgUrl", template.getCatalogueImgUrl());
-            tempMap.put("colorPrimary", template.getColorPrimary());
-            tempMap.put("colorAccent", template.getColorAccent());
-            tempMap.put("fontTitle", template.getFontTitle());
-            tempMap.put("fontBody", template.getFontBody());
-            tempMap.put("image1", template.getImage1());
-            tempMap.put("image2", template.getImage2());
-            tempMap.put("image3", template.getImage3());
-            tempMap.put("hasCadre", template.isHasCadre());
-            tempMap.put("defaultConfig", template.getDefaultConfig());
-
-            tempList.add(tempMap);
-        });
-
-
-        return new ResponseEntity<>(tempList, HttpStatus.OK);
+    public List<TemplateResponse> getTemplates(){
+        return templateRepository.findAll()
+                .stream()
+                .map(template -> new TemplateResponse(
+                        template.getUuid(),
+                        template.getName(),
+                        template.getCategory(),
+                        template.getCatalogueImgUrl(),
+                        template.getColorPrimary(),
+                        template.getColorAccent(),
+                        template.getFontTitle(),
+                        template.getFontBody(),
+                        template.getImage1(),
+                        template.getImage2(),
+                        template.getImage3(),
+                        template.isHasCadre(),
+                        template.getDefaultConfig()
+                ))
+                .toList();
     }
 
-    public ResponseEntity<@NotNull Template> getTemplateById(UUID uuid){
+    public TemplateResponse getTemplateById(UUID uuid){
         Optional <Template> template = templateRepository.findByUuid(uuid);
-
-        return template.map(value -> new ResponseEntity<>(
-                value, HttpStatus.OK
-        )).orElseGet(() -> new ResponseEntity<>(
-                HttpStatus.NOT_FOUND
-        ));
+        return template.map(this::toResponse).orElse(null);
     }
 
-    public void createTemplate(Template template) {
-        if (template.getCategory() == null || template.getCategory().isEmpty()) {
-            template.setCategory(template.getCategory());
-        }
-        if (template.getName() == null || template.getName().isEmpty()) {
-            template.setName(template.getName());
-        }
-        if (template.getCatalogueImgUrl() == null || template.getCatalogueImgUrl().isEmpty()) {
-            template.setCatalogueImgUrl(template.getCatalogueImgUrl());
-        }
-        if (template.getImage1() == null || template.getImage1().isEmpty()) {
-            template.setImage1(template.getImage1());
-        }
-        if (template.getImage2() == null || template.getImage2().isEmpty()) {
-            template.setImage2(template.getImage2());
-        }
-        if (template.getImage3() == null || template.getImage3().isEmpty()) {
-            template.setImage3(template.getImage3());
-        }
-        if (template.getDefaultConfig() == null || template.getDefaultConfig().isEmpty()) {
-            template.setDefaultConfig(template.getDefaultConfig());
-        }
+    public TemplateResponse createTemplate(CreateTemplateRequest request) {
+        Template template = new Template();
 
-        templateRepository.save(template);
+        template.setName(request.name());
+        template.setCategory(request.category());
+        template.setCatalogueImgUrl(request.catalogueImgUrl());
+        template.setColorPrimary(request.colorPrimary());
+        template.setColorAccent(request.colorAccent());
+        template.setFontTitle(request.fontTitle());
+        template.setFontBody(request.fontBody());
+        template.setImage1(request.image1());
+        template.setImage2(request.image2());
+        template.setImage3(request.image3());
+        template.setHasCadre(request.hasCadre());
+        template.setDefaultConfig(request.defaultConfig());
+
+        Template savedTemplate = templateRepository.save(template);
+        return toResponse(savedTemplate);
+
     }
 
-    public Template updateTemplate(UUID uuid, Template template) {
-        Optional <Template> existedTemplate = templateRepository.findByUuid(uuid);
+    public TemplateResponse updateTemplate(UUID uuid, UpdateTemplateRequest request) {
+        Template template = templateRepository.findByUuid(uuid)
+                .orElseThrow(() -> new TemplateNotFoundException(uuid));
 
-        if (existedTemplate.isPresent()) {
-            Template update = existedTemplate.get();
-
-            update.setName(template.getName());
-            update.setCategory(template.getCategory());
-            update.setDefaultConfig(template.getDefaultConfig());
-
-            return templateRepository.save(template);
+        if (request.name() != null) {
+            template.setName(request.name());
+        }
+        if (request.category() != null) {
+            template.setCategory(request.category());
+        }
+        if (request.catalogueImgUrl() != null) {
+            template.setCatalogueImgUrl(request.catalogueImgUrl());
+        }
+        if (request.colorPrimary() != null) {
+            template.setColorPrimary(request.colorPrimary());
+        }
+        if (request.colorAccent() != null) {
+            template.setColorAccent(request.colorAccent());
+        }
+        if (request.fontTitle() != null) {
+            template.setFontTitle(request.fontTitle());
+        }
+        if (request.fontBody() != null) {
+            template.setFontBody(request.fontBody());
+        }
+        if (request.image1() != null) {
+            template.setImage1(request.image1());
+        }
+        if (request.image2() != null) {
+            template.setImage2(request.image2());
+        }
+        if (request.image3() != null) {
+            template.setImage3(request.image3());
+        }
+        if (request.hasCadre() != null) {
+            template.setHasCadre(request.hasCadre());
+        }
+        if (request.defaultConfig() != null) {
+            template.setDefaultConfig(request.defaultConfig());
         }
 
-        return null;
+        Template updateTemplate = templateRepository.save(template);
+        return toResponse(updateTemplate);
     }
 
 
     public Template patchTemplate(Long id, Map<String, Object> patch) {
-//        Optional <Template> template = Optional.of(templateRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Template introuvable")));
         Template template = templateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("template introuvable"));
 
@@ -126,11 +136,29 @@ public class TemplateService {
         return templateRepository.save(template);
     }
 
-    public Template deleteTemplate(Long id) {
-        Optional<Template> template = templateRepository.findById(id);
-        if (template.isPresent()) {
-            templateRepository.deleteById(id);
-        }
-        return template.orElse(null);
+    public void deleteTemplate(UUID uuid) {
+        Template template = templateRepository.findByUuid(uuid)
+                .orElseThrow(() -> new TemplateNotFoundException(uuid));
+
+        templateRepository.delete(template);
+    }
+
+
+    private TemplateResponse toResponse(Template template) {
+        return new TemplateResponse(
+                template.getUuid(),
+                template.getName(),
+                template.getCategory(),
+                template.getCatalogueImgUrl(),
+                template.getColorPrimary(),
+                template.getColorAccent(),
+                template.getFontTitle(),
+                template.getFontBody(),
+                template.getImage1(),
+                template.getImage2(),
+                template.getImage3(),
+                template.isHasCadre(),
+                template.getDefaultConfig()
+        );
     }
 }

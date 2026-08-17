@@ -1,4 +1,4 @@
-package com.nathdev.welkom.exception.template;
+package com.nathdev.welkom.exceptions.template;
 
 import java.util.UUID;
 

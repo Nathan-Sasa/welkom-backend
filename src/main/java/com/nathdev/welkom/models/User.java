@@ -3,17 +3,20 @@ package com.nathdev.welkom.models;
 import com.nathdev.welkom.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-//import java.time.LocalDate;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -26,24 +29,29 @@ public class User {
     @Column(nullable = false)
     private String role;
 
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.ACTIVE;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-//    private LocalDateTime lastLogin;
-    private String activated;
-    private UserStatus status =  UserStatus.ACTIVE;
+    private LocalDateTime lastLogin;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(
+            mappedBy = "user",
+            cascade = CascadeType.ALL
+    )
     private Profile profile;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "user"
+    )
     private List<Event> events;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now(); updatedAt = LocalDateTime.now();
-        if (status == null) {
-            status = UserStatus.ACTIVE;
-        }
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
     }
     @PreUpdate
     protected void onUpdate() {updatedAt = LocalDateTime.now();}

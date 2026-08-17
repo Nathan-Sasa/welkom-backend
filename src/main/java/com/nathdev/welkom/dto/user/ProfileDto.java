@@ -21,11 +21,11 @@ public class ProfileDto {
             User user
     ) {
         ProfileDto profileDto = new ProfileDto();
-        profileDto.setUsername(profile.getUsername());
-        profileDto.setEmail(profile.getEmail());
+//        profileDto.setUsername(profile.getUsername());
+//        profileDto.setEmail(profile.getEmail());
         profileDto.setAvatar(profile.getAvatar());
         profileDto.setAvatar_public(profile.getAvatar_public());
-        profileDto.setLastLogin(profile.getLastLogin());
+//        profileDto.setLastLogin(profile.getLastLogin());
         profileDto.setRole(user.getRole());
         return profileDto;
     }

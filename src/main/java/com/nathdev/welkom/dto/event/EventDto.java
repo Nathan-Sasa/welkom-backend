@@ -34,7 +34,7 @@ public class EventDto {
         eventDto.id = event.getId();
         eventDto.title = event.getTitle();
         eventDto.description = event.getDescription();
-        eventDto.date_event = event.getDateEvent();
+//        eventDto.date_event = event.getDateEvent();
         eventDto.payment_status = event.getPaymentStatus();
         eventDto.event_status = event.getStatus();
         eventDto.image = event.getImage();

@@ -1,24 +1,30 @@
 package com.nathdev.welkom.models;
 
+import com.nathdev.welkom.converter.JsonMapConverter;
 import jakarta.persistence.*;
-import lombok.Data;
+//import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Template {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
-    private String uuid;
+    private UUID uuid;
 
     private String name;
     private String category;
@@ -26,16 +32,10 @@ public class Template {
     @Column(name = "catalogue_img_url")
     private String catalogueImgUrl;
 
-    @Column(name = "image1")
     private String image1;
-
-    @Column(name = "image2")
     private String image2;
-
-    @Column(name = "image3")
     private String image3;
 
-    @Column(name = "cadre_url")
     private String cadre;
 
     @Column(name = "has_cadre")
@@ -53,8 +53,10 @@ public class Template {
     @Column(name = "color_accent", length = 7)
     private String colorAccent;
 
-    @JdbcTypeCode(SqlTypes.LONGNVARCHAR)
-    @Column(name = "default_config")
-    private Map<String, Object> defaultConfig ;
+    @OneToMany(mappedBy = "template")
+    private List<CustomizedTemplates> customizedTemplates;
 
+    @Convert(converter = JsonMapConverter.class)
+    @Column(name = "default_config", columnDefinition = "LONGTEXT")
+    private Map<String, Object> defaultConfig ;
 }

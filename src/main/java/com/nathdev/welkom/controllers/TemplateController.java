@@ -1,5 +1,8 @@
 package com.nathdev.welkom.controllers;
 
+import com.nathdev.welkom.dto.template.CreateTemplateRequest;
+import com.nathdev.welkom.dto.template.TemplateResponse;
+import com.nathdev.welkom.dto.template.UpdateTemplateRequest;
 import com.nathdev.welkom.models.Template;
 import com.nathdev.welkom.security.JwtUtils;
 import com.nathdev.welkom.services.TemplateService;
@@ -24,84 +27,44 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TemplateController {
     private final TemplateService templateService;
-    private final JwtUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
 
     @GetMapping("/list")
-    public ResponseEntity<@NotNull List<Map<Object,Object>>> getAllTemplates() {
-        return templateService.getTemplates();
+    public ResponseEntity<@NotNull List<TemplateResponse>> getAllTemplates() {
+        return ResponseEntity.ok(
+                templateService.getTemplates()
+        );
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<@NotNull Template> getTemplateById(@PathVariable UUID uuid) {
+    public ResponseEntity<@NotNull TemplateResponse> getTemplateById(@PathVariable UUID uuid) {
         if (uuid == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return templateService.getTemplateById(uuid);
+        return ResponseEntity.ok(templateService.getTemplateById(uuid));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<@NotNull Template> createInvitation(@RequestBody Template template) {
-
-        if (template.getName() != null) {
-            templateService.createTemplate(template);
-            return new ResponseEntity<>(new Template(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new Template(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<@NotNull TemplateResponse> createInvitation(@RequestBody CreateTemplateRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(templateService.createTemplate(request));
     }
 
-    @PatchMapping("/update/{uuid}")
-    public ResponseEntity<@NotNull Template> updateTemplate(
-            HttpServletRequest cookie,
-            @PathVariable Long id,
-            @RequestBody Map<String, Object> template
-    ) {
-        String refreshToken = jwtUtils.getJwtFromCookies(cookie, "welkom_access");
-
-        if (refreshToken != null && jwtUtils.isTokenExpire(refreshToken)) {
-            String username = jwtUtils.extractUsername(refreshToken);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (
-                    userDetails.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "WLK_ADMIN"))
-                    || userDetails.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "WLK_SUPER_ADMIN"))
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<@NotNull TemplateResponse> updateTemplate(
+            @PathVariable UUID uuid,
+            @RequestBody UpdateTemplateRequest request
             ) {
-                Template update = templateService.patchTemplate(id, template);
-                return new ResponseEntity<>(update, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new Template(), HttpStatus.FORBIDDEN);
-            }
-
-        } else {
-            return new ResponseEntity<>(new Template(), HttpStatus.BAD_REQUEST);
-        }
-
+        return ResponseEntity.ok(templateService.updateTemplate(uuid, request));
     }
 
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<@NotNull Template> deleteTemplate(
-            HttpServletRequest cookie,
-            @PathVariable Long id
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<@NotNull Void> deleteTemplate(
+            @PathVariable UUID uuid
     ) {
-        String refreshToken = jwtUtils.getJwtFromCookies(cookie, "welkom_access");
-        if (refreshToken != null && jwtUtils.isTokenExpire(refreshToken)) {
-            String username = jwtUtils.extractUsername(refreshToken);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (
-                    userDetails.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "WLK_ADMIN"))
-                            || userDetails.getAuthorities().stream().anyMatch(a -> Objects.equals(a.getAuthority(), "WLK_SUPER_ADMIN"))
-            ) {
-                Template update = templateService.deleteTemplate(id);
-                return new ResponseEntity<>(update, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new Template(), HttpStatus.FORBIDDEN);
-            }
-
-        } else {
-            return new ResponseEntity<>(new Template(), HttpStatus.BAD_REQUEST);
-        }
+        templateService.deleteTemplate(uuid);
+        return ResponseEntity.noContent().build();
     }
 
 }

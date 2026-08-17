@@ -42,16 +42,17 @@ public class EventService {
             if (event.getDescription() != null) {
                 event.setDescription(event.getDescription());
             }
-            if (event.getDateEvent() != null) {
-                event.setDateEvent(event.getDateEvent());
-            }
+//            if (event.getDateEvent() != null) {
+//                event.setDateEvent(event.getDateEvent());
+//
+//            }
 
 //            if (event.getEstimatedGuests() > 0){
 //                event.setEstimatedGuests(event.getEstimatedGuests());
 //            }
 
 
-            long i = 250;
+            Integer i = 250;
 
             event.setEstimatedGuests(i);
             event.setStatus(EventsStatus.PENDING);

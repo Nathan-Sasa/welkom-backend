@@ -10,7 +10,7 @@ import org.hibernate.annotations.UuidGenerator;
 public class Tables {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @UuidGenerator
     @Column(unique = true, nullable = false)

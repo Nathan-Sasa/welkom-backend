@@ -1,9 +1,8 @@
 package com.nathdev.welkom.enums;
 
 public enum EventsStatus {
+    DRAFT,
     PENDING,
-    CANCEL,
-    APPROVED,
-    BEGINNING,
-    COMPLETE
+    CONFIRMED,
+    CANCELED,
 }
