@@ -1,12 +1,14 @@
 package com.nathdev.welkom.services;
 
+import com.nathdev.welkom.components.AuthenticateUser;
+import com.nathdev.welkom.dto.event.CreateEventRequest;
+import com.nathdev.welkom.dto.event.EventResponse;
 import com.nathdev.welkom.enums.EventsStatus;
 import com.nathdev.welkom.enums.Payment_status;
 import com.nathdev.welkom.models.Event;
 import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.EventRepository;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,46 +26,32 @@ import java.util.Optional;
 public class EventService {
     private EventRepository eventRepository;
     private GenerateKeyService generateKeyService;
+    private AuthenticateUser authenticateUser;
 
-    public void createEvent(
-            User user,
-            Event event
-            ) {
+    public EventResponse create(
+            CreateEventRequest request
+    ) {
+        User user = authenticateUser.getUser();
 
-        Optional<Event> getEvent = eventRepository.findById(event.getId());
+        Event event = new Event();
 
-        if(getEvent.isEmpty()){
+        event.setUser(user);
 
-            event.setUser(user);
+        event.setTitle(request.title());
+        event.setDescription(request.description());
+        event.setDateEventEnd(request.dateEventEnd());
+        event.setDateEventStart(request.dateEventStart());
+        event.setEstimatedGuests(request.estimatedGuests());
+        event.setImage(request.image());
 
-            if (event.getTitle() != null) {
-                event.setTitle(event.getTitle());
-            }
-            if (event.getDescription() != null) {
-                event.setDescription(event.getDescription());
-            }
-//            if (event.getDateEvent() != null) {
-//                event.setDateEvent(event.getDateEvent());
-//
-//            }
+        event.setSecureId(generateKeyService.generateShortNumberKey());
+        event.setSecurityEventKey(generateKeyService.generateShortNumberKey());
+        event.setStatus(EventsStatus.PENDING);
+        event.setPaymentStatus(Payment_status.PENDING);
 
-//            if (event.getEstimatedGuests() > 0){
-//                event.setEstimatedGuests(event.getEstimatedGuests());
-//            }
+        Event saveEvent =  eventRepository.save(event);
 
-
-            Integer i = 250;
-
-            event.setEstimatedGuests(i);
-            event.setStatus(EventsStatus.PENDING);
-            event.setPaymentStatus(Payment_status.PENDING);
-            event.setSecureId(generateKeyService.generateShortNumberKey());
-            event.setSecurityEventKey(generateKeyService.generateSecureKey());
-            eventRepository.save(event);
-            return;
-        }
-
-        eventRepository.save(event);
+        return toResponse(saveEvent);
     }
 
     public Event updateEvent(String event_id, Map<String, Object> patch) {
@@ -90,7 +78,32 @@ public class EventService {
         return eventRepository.save(existEvent);
     }
 
+    public List<EventResponse> getMyEvents() {
+        User user = authenticateUser.getUser();
+        return eventRepository.findAllByUser(user)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public ResponseEntity <@NotNull List<Event>> getAllEvent() {
         return new ResponseEntity<>(eventRepository.findAll(), HttpStatus.OK);
+    }
+
+    private EventResponse toResponse(Event event) {
+        return new  EventResponse(
+                event.getUuid(),
+                event.getSecureId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDateEventStart(),
+                event.getDateEventEnd(),
+                event.getEstimatedGuests(),
+                event.getImage(),
+                event.getStatus(),
+                event.getPaymentStatus(),
+                event.getCreatedAt(),
+                event.getUpdatedAt()
+        );
     }
 }

@@ -78,6 +78,11 @@ public class SecurityConfig {
                                 "/api/v1/templates/**"
                         ).permitAll()
                         //****************************************
+                        //Event permissions **********************
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/event"
+                        ).hasAuthority("ROLE_WLK_USER")
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

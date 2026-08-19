@@ -3,6 +3,7 @@ package com.nathdev.welkom.services;
 import com.nathdev.welkom.components.AuthenticateUser;
 import com.nathdev.welkom.dto.customizedTemplate.CustomizeTemplateRequest;
 import com.nathdev.welkom.dto.customizedTemplate.CustomizeTemplateResponse;
+import com.nathdev.welkom.exceptions.accessDenied.AccessDeniedCustomException;
 import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateAlreadyExistsException;
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
 import com.nathdev.welkom.exceptions.template.TemplateNotFoundException;
@@ -40,7 +41,7 @@ public class CustomizedTemplatesService {
                 .orElseThrow(() -> new EventNotFoundException(eventUuid));
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("Cet événement n'appartient pas à cet utilisateur");
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas !");
         }
 
         Template template = templateRepository.findByUuid(request.templateUuid())
@@ -90,30 +91,30 @@ public class CustomizedTemplatesService {
         );
     }
 
-    public CustomizedTemplates createCustomizedTemplates(UUID templateUuid, String event_id) {
-
-        Event existEvent = eventRepository.findBySecureId(event_id)
-                .orElseThrow(() -> new RuntimeException("Évenement introuvable"));
-
-        Template existTemplate = templateRepository.findByUuid(templateUuid)
-                .orElseThrow(() -> new RuntimeException("Template introuvable"));
-
-        CustomizedTemplates customizedTemplates = new CustomizedTemplates();
-        customizedTemplates.setEvent(existEvent);
-        customizedTemplates.setName(existTemplate.getName());
-        customizedTemplates.setCustomImage1(existTemplate.getImage1());
-        customizedTemplates.setCustomImage2(existTemplate.getImage2());
-        customizedTemplates.setCustomImage3(existTemplate.getImage3());
-        customizedTemplates.setCustomHasCadre(existTemplate.isHasCadre());
-        customizedTemplates.setCustomCadreUrl(existTemplate.getCadre());
-        customizedTemplates.setCustomFontTitle(existTemplate.getFontTitle());
-        customizedTemplates.setCustomFontBody(existTemplate.getFontBody());
-        customizedTemplates.setCustomColorPrimary(existTemplate.getColorPrimary());
-        customizedTemplates.setCustomColorAccent(existTemplate.getColorAccent());
-        customizedTemplates.setContentData(existTemplate.getDefaultConfig());
-
-        return customizedTemplatesRepository.save(customizedTemplates);
-    }
+//    public CustomizedTemplates createCustomizedTemplates(UUID templateUuid, String event_id) {
+//
+//        Event existEvent = eventRepository.findBySecureId(event_id)
+//                .orElseThrow(() -> new RuntimeException("Évenement introuvable"));
+//
+//        Template existTemplate = templateRepository.findByUuid(templateUuid)
+//                .orElseThrow(() -> new RuntimeException("Template introuvable"));
+//
+//        CustomizedTemplates customizedTemplates = new CustomizedTemplates();
+//        customizedTemplates.setEvent(existEvent);
+//        customizedTemplates.setName(existTemplate.getName());
+//        customizedTemplates.setCustomImage1(existTemplate.getImage1());
+//        customizedTemplates.setCustomImage2(existTemplate.getImage2());
+//        customizedTemplates.setCustomImage3(existTemplate.getImage3());
+//        customizedTemplates.setCustomHasCadre(existTemplate.isHasCadre());
+//        customizedTemplates.setCustomCadreUrl(existTemplate.getCadre());
+//        customizedTemplates.setCustomFontTitle(existTemplate.getFontTitle());
+//        customizedTemplates.setCustomFontBody(existTemplate.getFontBody());
+//        customizedTemplates.setCustomColorPrimary(existTemplate.getColorPrimary());
+//        customizedTemplates.setCustomColorAccent(existTemplate.getColorAccent());
+//        customizedTemplates.setContentData(existTemplate.getDefaultConfig());
+//
+//        return customizedTemplatesRepository.save(customizedTemplates);
+//    }
 
     public User user() {
         return authenticateUser.getUser();
