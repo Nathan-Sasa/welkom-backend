@@ -26,11 +26,11 @@ public class Profile {
     private User user;
 
     @Column(length = 30)
-    private String first_name;
+    private String firstName;
 
     @Column(length = 30)
     private String telephone;
 
     private String avatar;
-    private String avatar_public;
+    private String avatarPublic;
 }

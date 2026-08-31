@@ -1,5 +1,6 @@
 package com.nathdev.welkom.repositories;
 
+import com.nathdev.welkom.models.Guest;
 import com.nathdev.welkom.models.Invitation;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,5 @@ import java.util.UUID;
 @Repository
 public interface InvitationRepository extends JpaRepository<@NotNull Invitation, @NotNull Long> {
     Optional<Invitation> findByUuid(UUID uuid);
+    Optional<Invitation> findByGuest(Guest guest);
 }

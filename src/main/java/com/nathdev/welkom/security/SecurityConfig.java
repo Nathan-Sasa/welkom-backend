@@ -81,9 +81,68 @@ public class SecurityConfig {
                         //Event permissions **********************
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/api/v1/event"
+                                "/api/v1/events"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/events/{uuid}"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/v1/events/{uuid}"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                        "/api/v1/events/{uuid}"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        //****************************************
+                        // CustomizedTemplate permissions ********
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/events/{eventUuid}/customized-template"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/v1/events/*/guests"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/events/{eventUuid}/customized-template"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        //****************************************
+                        // Guest permissions ********
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/events/*/guests"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/v1/events/*/guests"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/events/*/guests"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/events/*/guests"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        //****************************************
+                        // Invitation permissions ********
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/events/*/invitation"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/v1/events/*/invitations"
+                        ).hasAuthority("ROLE_WLK_USER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/events/*/invitation"
                         ).hasAuthority("ROLE_WLK_USER")
 
+                        //****************************************
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )

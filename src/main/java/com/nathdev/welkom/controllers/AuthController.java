@@ -149,7 +149,7 @@ public class AuthController {
             authLoginData.put("username", user.getUsername());
             authLoginData.put("email", user.getEmail());
             authLoginData.put("role", user.getRole());
-            authLoginData.put("first_name", user.getProfile().getFirst_name());
+            authLoginData.put("first_name", user.getProfile().getFirstName());
             authLoginData.put("avatar", user.getProfile().getAvatar());
 
 //            user.getProfile().setLastLogin(LocalDateTime.now());

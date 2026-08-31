@@ -2,11 +2,9 @@ package com.nathdev.welkom.controllers;
 
 import com.nathdev.welkom.dto.event.CreateEventRequest;
 import com.nathdev.welkom.dto.event.EventResponse;
-import com.nathdev.welkom.models.Event;
-import com.nathdev.welkom.models.User;
+import com.nathdev.welkom.dto.event.UpdateEventRequest;
 import com.nathdev.welkom.services.EventService;
 import com.nathdev.welkom.services.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -16,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/event")
+@RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
@@ -42,4 +40,30 @@ public class EventController {
         return ResponseEntity
                 .ok(eventService.getMyEvents());
     }
+
+    @GetMapping("/{uuid}")
+    public ResponseEntity<@NotNull EventResponse> getEvent(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity
+                .ok(eventService.getEvent(uuid));
+    }
+
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<@NotNull EventResponse> updateEvent(
+            @PathVariable UUID uuid,
+            @RequestBody UpdateEventRequest request
+    ) {
+        return ResponseEntity
+                .ok(eventService.updateEvent(uuid, request));
+    }
+
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<@NotNull Void> deleteEvent(
+            @PathVariable UUID uuid
+    ) {
+        eventService.deleteEvent(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
 }

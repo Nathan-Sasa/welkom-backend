@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "seating_table")
 @Data
@@ -14,7 +16,7 @@ public class Tables {
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
-    private String uuid;
+    private UUID uuid;
 
     @Column(name = "table_name")
     private String tableName;

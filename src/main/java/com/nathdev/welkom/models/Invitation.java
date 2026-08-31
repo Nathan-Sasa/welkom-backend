@@ -1,12 +1,13 @@
 package com.nathdev.welkom.models;
 
-import com.nathdev.welkom.enums.Rsvp_status;
+import com.nathdev.welkom.enums.RsvpStatus;
 import com.nathdev.welkom.enums.ScanStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -18,10 +19,10 @@ public class Invitation {
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
-    private String uuid;
+    private UUID uuid;
 
     @Column(name = "rsvp_status", length = 20)
-    private Rsvp_status rsvpStatus = Rsvp_status.PENDING;
+    private RsvpStatus rsvpStatus = RsvpStatus.PENDING;
 
     @Column(name = "scan_status", length = 20)
     private ScanStatus scanStatus = ScanStatus.PENDING;

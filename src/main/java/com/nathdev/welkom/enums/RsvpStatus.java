@@ -1,6 +1,6 @@
 package com.nathdev.welkom.enums;
 
-public enum Rsvp_status {
+public enum RsvpStatus {
     PENDING,
     CONFIRM,
     DECLINED,

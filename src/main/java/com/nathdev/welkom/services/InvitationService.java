@@ -1,7 +1,20 @@
 package com.nathdev.welkom.services;
 
+import com.nathdev.welkom.components.AuthenticateUser;
+import com.nathdev.welkom.dto.invitation.CreateInvitationRequest;
+import com.nathdev.welkom.dto.invitation.InvitationResponse;
 import com.nathdev.welkom.dto.invitation.InvitationResponseDto;
+import com.nathdev.welkom.exceptions.accessDenied.AccessDeniedCustomException;
+import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateNotFoundException;
+import com.nathdev.welkom.exceptions.event.EventNotFoundException;
+import com.nathdev.welkom.exceptions.guest.GuestNotFoundException;
+import com.nathdev.welkom.exceptions.invitation.InvitationAlreadyExistsException;
+import com.nathdev.welkom.models.*;
+import com.nathdev.welkom.repositories.CustomizedTemplatesRepository;
+import com.nathdev.welkom.repositories.EventRepository;
+import com.nathdev.welkom.repositories.GuestRepository;
 import com.nathdev.welkom.repositories.InvitationRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,14 +22,70 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class InvitationService {
 
-    @Autowired
+    private AuthenticateUser  authenticateUser;
     private InvitationRepository invitationRepository;
+    private EventRepository eventRepository;
+    private CustomizedTemplatesRepository customizedTemplatesRepository;
+    private GuestRepository guestRepository;
+
+    public InvitationResponse create (
+            UUID eventUuid,
+            CreateInvitationRequest request
+    ){
+        User user = authenticateUser.getUser();
+
+        Event event = eventRepository
+                .findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())){
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas");
+        }
+
+        CustomizedTemplates customizedTemplates = customizedTemplatesRepository
+                .findByEvent(event)
+                .orElseThrow(() -> new CustomizedTemplateNotFoundException(eventUuid));
+
+        Guest guest = guestRepository
+                .findByUuidAndDeletedAtIsNull(request.guestUuid())
+                .orElseThrow(() -> new GuestNotFoundException(request.guestUuid()));
+
+        if (!guest.getEvent().getId().equals(event.getId())){
+            throw new AccessDeniedCustomException("Cet invité n'appartient pas à cet événement");
+        }
+
+        if (invitationRepository.findByGuest(guest).isPresent()){
+            throw new InvitationAlreadyExistsException();
+        }
+
+        Invitation invitation = new Invitation();
+
+        invitation.setEvent(event);
+        invitation.setGuest(guest);
+        invitation.setCustomizedTemplate(customizedTemplates);
+
+        Invitation saved = invitationRepository.save(invitation);
+        return toResponse(saved);
+    }
 
     public Optional<InvitationResponseDto> findInvitation(UUID id){
 
         return invitationRepository.findByUuid(id)
                 .map(InvitationResponseDto::fromEntity);
+    }
+
+    private InvitationResponse toResponse(Invitation invitation){
+        return new InvitationResponse(
+                invitation.getUuid(),
+                invitation.getEvent().getUuid(),
+                invitation.getGuest().getUuid(),
+                invitation.getCustomizedTemplate().getUuid(),
+                invitation.getRsvpStatus(),
+                invitation.getScanStatus(),
+                invitation.getScannedAt()
+        );
     }
 }

@@ -1,9 +1,8 @@
 package com.nathdev.welkom.models;
 
 import com.nathdev.welkom.enums.EventsStatus;
-import com.nathdev.welkom.enums.Payment_status;
+import com.nathdev.welkom.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
@@ -65,7 +64,7 @@ public class Event {
     @Column(
             name = "payment_status"
     )
-    private Payment_status  paymentStatus;
+    private PaymentStatus paymentStatus;
 
     @Enumerated(EnumType.STRING)
     private EventsStatus status;
@@ -91,10 +90,10 @@ public class Event {
     )
     private Location location;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
     private List<Guest> guests;
 
-    @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
     private List<Tables> tables;
 
     @OneToOne(
@@ -104,11 +103,12 @@ public class Event {
     )
     private CustomizedTemplates customizedTemplate;
 
-    @OneToMany(mappedBy = "event", cascade =  CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
     private List<Invitation> invitations;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     @PrePersist
     private void onCreate(){

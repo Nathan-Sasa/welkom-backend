@@ -43,93 +43,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
-//    private final AuthenticationManager authenticationManager;
-//    private final PasswordEncoder passwordEncoder;
-//    private final CustomDetailsService customDetailsService;
 
-//    @Value("${jwt.expire}")
-//    private long jwtExpirationTime;
-//
-//    @Value("${jwt.refreshExpire}")
-//    private long jwtRefreshExpire;
 
-//    public ResponseEntity<?> register (@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
-//        if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
-//            return ResponseEntity.badRequest().body(Map.of("message", "Ce nom d'utilisateur est déjà utilisé."));
-//        }
-//
-//        if (userRepository.findByEmail(registerRequest.email()).isPresent()) {
-//            return ResponseEntity.badRequest().body(Map.of("message", "Cet e-mail est déjà utilisé."));
-//        }
-//
-//        User user = new User();
-//        user.setUsername(registerRequest.username());
-//        user.setEmail(registerRequest.email());
-//        user.setRole("WLK_USER");
-//        user.setPassword(passwordEncoder.encode(registerRequest.password()));
-//
-//        Profile profile = new Profile();
-//        profile.setUser(user);
-//        profile.setEmail(user.getEmail());
-//        profile.setUsername(user.getUsername());
-//        profile.setLastLogin(LocalDateTime.now());
-//
-//        user.setProfile(profile);
-//        userRepository.save(user);
-//
-//        // Génération des tokens
-//        String accessToken = jwtUtils.generateAccessToken(user.getUsername(), "ROLE_" + user.getRole(), user.getEmail());
-//        String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
-//
-//        // Injection des cookies sécurisés
-//        ResponseCookie accessCookie = jwtUtils.generateCookie("welkom_access", accessToken, jwtExpirationTime);
-//        ResponseCookie refreshCookie = jwtUtils.generateCookie("welkom_refresh", refreshToken, jwtRefreshExpire);
-//
-//        user.setStatus(UserStatus.ACTIVE);
-//        userRepository.save(user);
-//
-//        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-//        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body(AuthResponseDto.fromEntity(user));
-//    }
-//
-//    public ResponseEntity<?> login (@NotNull LoginRequest loginRequest, @NotNull HttpServletResponse response) {
-//
-//        // Spring Security valide ou lève directement une exception si l'authentification échoue
-////        Authentication authentication = authenticationManager.authenticate(
-////                new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
-////        );
-//
-//
-//        User user = userRepository.findByEmail(loginRequest.email())
-//                .orElseThrow(() -> new NoSuchElementException("Aucun utilisateur trouvé avec l'e-mail : " + loginRequest.email()));
-//
-//        // Génération des tokens
-//        String accessToken = jwtUtils.generateAccessToken(user.getUsername(), user.getRole(), user.getEmail());
-//        String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
-//
-//        // Injection des cookies sécurisés
-//        ResponseCookie accessCookie = jwtUtils.generateCookie("welkom_access", accessToken, jwtExpirationTime);
-//        ResponseCookie refreshCookie = jwtUtils.generateCookie("welkom_refresh", refreshToken, jwtRefreshExpire);
-//
-//        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-//        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-//
-//        Map<String, Object> authLoginData = new HashMap<>();
-//        authLoginData.put("username", user.getUsername());
-//        authLoginData.put("email", user.getEmail());
-//        authLoginData.put("role", user.getRole());
-//        authLoginData.put("first_name", user.getProfile().getFirst_name());
-//        authLoginData.put("avatar", user.getProfile().getAvatar());
-//
-//        user.getProfile().setLastLogin(LocalDateTime.now());
-//        userRepository.save(user);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(authLoginData);
-////            return ResponseEntity.status(HttpStatus.OK).body(AuthResponseDto.fromEntity(user));
-//    }
-//
     public ResponseEntity<?> currentUser(HttpServletRequest request) {
         String token = jwtUtils.getJwtFromCookies(request, "welkom_access");
 
@@ -145,7 +60,7 @@ public class UserService {
                         userData.put("role", user.getRole());
 
                         if (user.getProfile() != null) {
-                            userData.put("first_name", user.getProfile().getFirst_name());
+                            userData.put("first_name", user.getProfile().getFirstName());
                             userData.put("avatar", user.getProfile().getAvatar());
                         }
 
@@ -193,25 +108,25 @@ public class UserService {
 
 
 
-    public User getUserAuth(HttpServletRequest request) {
-        String jwtToken = jwtUtils.getJwtFromCookies(request, "welkom_access");
-//        String username = null;
-
-        if (jwtToken != null) {
-            try {
-                String username = jwtUtils.extractUsername(jwtToken);
-                return userRepository.findByEmail(username)
-                        .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-            } catch (Exception e) {
-                log.error("JWT validation link failed{}", e.getMessage());
-            }
-        }
-        return null;
-    }
-
-    public void updateLastLoginTime(HttpServletRequest request) {
-        User user = getUserAuth(request);
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
-    }
+//    public User getUserAuth(HttpServletRequest request) {
+//        String jwtToken = jwtUtils.getJwtFromCookies(request, "welkom_access");
+////        String username = null;
+//
+//        if (jwtToken != null) {
+//            try {
+//                String username = jwtUtils.extractUsername(jwtToken);
+//                return userRepository.findByEmail(username)
+//                        .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+//            } catch (Exception e) {
+//                log.error("JWT validation link failed{}", e.getMessage());
+//            }
+//        }
+//        return null;
+//    }
+//
+//    public void updateLastLoginTime(HttpServletRequest request) {
+//        User user = getUserAuth(request);
+//        user.setLastLogin(LocalDateTime.now());
+//        userRepository.save(user);
+//    }
 }

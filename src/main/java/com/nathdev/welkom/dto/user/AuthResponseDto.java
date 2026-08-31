@@ -19,7 +19,7 @@ public class AuthResponseDto {
 //        authResponseDto.setUsername(user.getProfile().getUsername());
 //        authResponseDto.setEmail(user.getProfile().getEmail());
         authResponseDto.setAvatar(user.getProfile().getAvatar());
-        authResponseDto.setFirst_name(user.getProfile().getFirst_name());
+        authResponseDto.setFirst_name(user.getProfile().getFirstName());
         authResponseDto.setRole(user.getRole());
         return authResponseDto;
     }

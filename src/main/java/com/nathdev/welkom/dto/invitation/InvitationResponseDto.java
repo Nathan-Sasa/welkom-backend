@@ -4,10 +4,11 @@ import com.nathdev.welkom.models.Invitation;
 import lombok.Data;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 public class InvitationResponseDto {
-    String uuid;
+    UUID uuid;
     String guestName;
 //    String guestFirstName;
     String guestCategory;
@@ -33,7 +34,7 @@ public class InvitationResponseDto {
     ) {
         InvitationResponseDto invitationResponseDto = new InvitationResponseDto();
         invitationResponseDto.uuid = invitation.getUuid();
-        invitationResponseDto.guestName = invitation.getGuest().getFirst_name() + " " + invitation.getGuest().getLast_name();
+        invitationResponseDto.guestName = invitation.getGuest().getFirstName() + " " + invitation.getGuest().getLastName();
         invitationResponseDto.guestCategory = invitation.getGuest().getCategory();
         invitationResponseDto.rsvpStatus = invitation.getRsvpStatus().toString();
 

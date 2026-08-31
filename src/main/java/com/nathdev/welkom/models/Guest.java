@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -17,13 +18,13 @@ public class Guest {
 
     @UuidGenerator
     @Column(unique = true, nullable = false)
-    private String uuid;
+    private UUID uuid;
 
     @Column(name = "first_name", nullable = false, length = 50)
-    private String first_name;
+    private String firstName;
 
     @Column(name = "last_name",  nullable = false, length = 50)
-    private String last_name;
+    private String lastName;
 
     private String email;
 
@@ -37,7 +38,7 @@ public class Guest {
     private Event event;
     
     @OneToOne
-    @JoinColumn(name = "tables_id", nullable = false)
+    @JoinColumn(name = "tables_id")
     private Tables tables;
 
     @OneToOne(mappedBy = "guest", cascade = CascadeType.ALL)
@@ -45,6 +46,8 @@ public class Guest {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 
     @PrePersist
     public void prePersist() {

@@ -1,7 +1,7 @@
 package com.nathdev.welkom.dto.event;
 
 import com.nathdev.welkom.enums.EventsStatus;
-import com.nathdev.welkom.enums.Payment_status;
+import com.nathdev.welkom.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +16,7 @@ public record EventResponse(
         Integer estimatedGuests,
         String image,
         EventsStatus eventStatus,
-        Payment_status paymentStatus,
+        PaymentStatus paymentStatus,
         LocalDateTime createdAt,
         LocalDateTime updateAt
 ) {

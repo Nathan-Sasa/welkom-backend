@@ -37,7 +37,7 @@ public class CustomizedTemplatesService {
     ) {
         User user = authenticateUser.getUser();
 
-        Event event = eventRepository.findByUuid(eventUuid)
+        Event event = eventRepository.findByUuidAndDeletedAtIsNull(eventUuid)
                 .orElseThrow(() -> new EventNotFoundException(eventUuid));
 
         if (!event.getUser().getId().equals(user.getId())) {
@@ -47,7 +47,7 @@ public class CustomizedTemplatesService {
         Template template = templateRepository.findByUuid(request.templateUuid())
                 .orElseThrow(() -> new TemplateNotFoundException(request.templateUuid()));
 
-        if (event.getCustomizedTemplate() != null) {
+        if (customizedTemplatesRepository.findByEvent(event).isPresent()) {
             throw new CustomizedTemplateAlreadyExistsException(eventUuid);
         }
 
@@ -73,6 +73,74 @@ public class CustomizedTemplatesService {
         return toResponse(saved);
     }
 
+    public CustomizeTemplateResponse getByEvent(UUID eventUuid) {
+        User user = authenticateUser.getUser();
+
+        Event event = eventRepository.findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas !");
+        }
+
+        CustomizedTemplates customizedTemplate = customizedTemplatesRepository.findByEvent(event)
+                .orElseThrow(() -> new TemplateNotFoundException(eventUuid));
+
+        return toResponse(customizedTemplate);
+    }
+
+    public CustomizeTemplateResponse updateCustomizedTempale(
+            UUID eventUuid,
+            CustomizeTemplateRequest request
+    ) {
+        User user =authenticateUser.getUser();
+
+        Event event = eventRepository.findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas !");
+        }
+
+        CustomizedTemplates customizedTemplate = customizedTemplatesRepository.findByEvent(event)
+                .orElseThrow(() -> new TemplateNotFoundException(eventUuid));
+
+        if (request.name() != null) {
+            customizedTemplate.setName(request.name());
+        }
+        if (request.customImage1() != null) {
+            customizedTemplate.setCustomImage1(request.customImage1());
+        }
+        if (request.customImage2() != null) {
+            customizedTemplate.setCustomImage2(request.customImage2());
+        }
+        if  (request.customImage3() != null) {
+            customizedTemplate.setCustomImage3(request.customImage3());
+        }
+        if (request.customHasCadre()) {
+            customizedTemplate.setCustomHasCadre(true);
+        }
+        if (request.customCadreUrl() != null) {
+            customizedTemplate.setCustomCadreUrl(request.customCadreUrl());
+        }
+        if (request.customFontTitle() != null) {
+            customizedTemplate.setCustomFontTitle(request.customFontTitle());
+        }
+        if (request.customFontBody() != null) {
+            customizedTemplate.setCustomFontBody(request.customFontBody());
+        }
+        if (request.customColorPrimary() != null) {
+            customizedTemplate.setCustomColorPrimary(request.customColorPrimary());
+        }
+        if (request.customColorAccent() != null) {
+            customizedTemplate.setCustomColorAccent(request.customColorAccent());
+        }
+
+        CustomizedTemplates updated = customizedTemplatesRepository.save(customizedTemplate);
+
+        return toResponse(updated);
+    }
+
     private CustomizeTemplateResponse toResponse(CustomizedTemplates customizedTemplate) {
         return new CustomizeTemplateResponse(
                 customizedTemplate.getUuid(),
@@ -90,31 +158,6 @@ public class CustomizedTemplatesService {
                 customizedTemplate.getContentData()
         );
     }
-
-//    public CustomizedTemplates createCustomizedTemplates(UUID templateUuid, String event_id) {
-//
-//        Event existEvent = eventRepository.findBySecureId(event_id)
-//                .orElseThrow(() -> new RuntimeException("Évenement introuvable"));
-//
-//        Template existTemplate = templateRepository.findByUuid(templateUuid)
-//                .orElseThrow(() -> new RuntimeException("Template introuvable"));
-//
-//        CustomizedTemplates customizedTemplates = new CustomizedTemplates();
-//        customizedTemplates.setEvent(existEvent);
-//        customizedTemplates.setName(existTemplate.getName());
-//        customizedTemplates.setCustomImage1(existTemplate.getImage1());
-//        customizedTemplates.setCustomImage2(existTemplate.getImage2());
-//        customizedTemplates.setCustomImage3(existTemplate.getImage3());
-//        customizedTemplates.setCustomHasCadre(existTemplate.isHasCadre());
-//        customizedTemplates.setCustomCadreUrl(existTemplate.getCadre());
-//        customizedTemplates.setCustomFontTitle(existTemplate.getFontTitle());
-//        customizedTemplates.setCustomFontBody(existTemplate.getFontBody());
-//        customizedTemplates.setCustomColorPrimary(existTemplate.getColorPrimary());
-//        customizedTemplates.setCustomColorAccent(existTemplate.getColorAccent());
-//        customizedTemplates.setContentData(existTemplate.getDefaultConfig());
-//
-//        return customizedTemplatesRepository.save(customizedTemplates);
-//    }
 
     public User user() {
         return authenticateUser.getUser();

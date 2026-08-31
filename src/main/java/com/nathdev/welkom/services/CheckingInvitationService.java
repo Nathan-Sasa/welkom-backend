@@ -1,7 +1,6 @@
 package com.nathdev.welkom.services;
 
 import com.nathdev.welkom.dto.invitation.InvitationResponseDto;
-import com.nathdev.welkom.enums.Rsvp_status;
 import com.nathdev.welkom.enums.ScanStatus;
 import com.nathdev.welkom.models.Invitation;
 import com.nathdev.welkom.repositories.InvitationRepository;

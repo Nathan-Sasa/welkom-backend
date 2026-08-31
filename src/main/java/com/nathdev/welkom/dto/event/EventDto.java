@@ -1,7 +1,7 @@
 package com.nathdev.welkom.dto.event;
 
 import com.nathdev.welkom.enums.EventsStatus;
-import com.nathdev.welkom.enums.Payment_status;
+import com.nathdev.welkom.enums.PaymentStatus;
 import com.nathdev.welkom.models.Event;
 //import com.nathdev.welkom.models.Tables;
 import lombok.Data;
@@ -15,7 +15,7 @@ public class EventDto {
     private String title;
     private String description;
     private String date_event;
-    private Payment_status payment_status;
+    private PaymentStatus payment_status;
     private EventsStatus event_status;
     private String image;
     private String location;
