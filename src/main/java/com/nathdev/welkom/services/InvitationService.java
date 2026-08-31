@@ -9,6 +9,7 @@ import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateNotFou
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
 import com.nathdev.welkom.exceptions.guest.GuestNotFoundException;
 import com.nathdev.welkom.exceptions.invitation.InvitationAlreadyExistsException;
+import com.nathdev.welkom.exceptions.invitation.InvitationNotFoundException;
 import com.nathdev.welkom.models.*;
 import com.nathdev.welkom.repositories.CustomizedTemplatesRepository;
 import com.nathdev.welkom.repositories.EventRepository;
@@ -18,6 +19,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,10 +73,41 @@ public class InvitationService {
         return toResponse(saved);
     }
 
-    public Optional<InvitationResponseDto> findInvitation(UUID id){
+    public List<InvitationResponse> getAllByEvent(UUID eventUuid) {
+        User user = authenticateUser.getUser();
 
-        return invitationRepository.findByUuid(id)
-                .map(InvitationResponseDto::fromEntity);
+        Event event = eventRepository
+                .findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())){
+            throw new AccessDeniedCustomException("Cet événetment ne vous appartient pas");
+        }
+
+        return invitationRepository
+                .findByEvent(event)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public InvitationResponse findByUuid(UUID uuid) {
+        User user = authenticateUser.getUser();
+
+        Invitation invitation = invitationRepository
+                .findByUuid(uuid)
+                .orElseThrow(() -> new InvitationNotFoundException(uuid));
+
+        Event event = invitation.getEvent();
+
+        if (event.getDeletedAt() != null){
+            throw  new EventNotFoundException(event.getUuid());
+        }
+         if (!event.getUser().getId().equals(user.getId())){
+             throw new AccessDeniedCustomException("Cet invitation ne vous apparient pas");
+         }
+
+         return toResponse(invitation);
     }
 
     private InvitationResponse toResponse(Invitation invitation){

@@ -17,9 +17,14 @@ public class Invitation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @UuidGenerator
     @Column(unique = true, nullable = false)
     private UUID uuid;
+
+    @UuidGenerator
+    @Column(unique = true, nullable = false)
+    private UUID accessToken;
 
     @Column(name = "rsvp_status", length = 20)
     private RsvpStatus rsvpStatus = RsvpStatus.PENDING;

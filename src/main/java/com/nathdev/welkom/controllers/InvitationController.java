@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,9 +18,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
 public class InvitationController {
-    private final InvitationRepository invitationRepository;
     private final InvitationService invitationService;
-
 
     @PostMapping("/{eventUuid}/invitations")
     public ResponseEntity<@NotNull InvitationResponse> create (
@@ -31,15 +30,17 @@ public class InvitationController {
                 .body(invitationService.create(eventUuid, request));
     }
 
-    @GetMapping("/{eventUuid}/invitations/{id}")
-    public ResponseEntity<@NotNull Optional<Object>> getInvitation(
-            @PathVariable UUID id
+    @GetMapping("/{eventUuid}/invitations")
+    public ResponseEntity<@NotNull List<InvitationResponse>> getAll (
+            @PathVariable UUID eventUuid
     ){
-        try{
-            Optional<Object> invitation = Optional.ofNullable(invitationService.findInvitation(id));
-            return ResponseEntity.status(HttpStatus.OK).body(invitation);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return ResponseEntity.ok(invitationService.getAllByEvent(eventUuid));
+    }
+
+    @GetMapping("/invitations/{uuid}")
+    public ResponseEntity<@NotNull InvitationResponse> get (
+            @PathVariable UUID uuid
+    ){
+        return ResponseEntity.ok(invitationService.findByUuid(uuid));
     }
 }

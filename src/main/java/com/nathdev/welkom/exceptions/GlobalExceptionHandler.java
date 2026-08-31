@@ -7,6 +7,7 @@ import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateNotFou
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
 import com.nathdev.welkom.exceptions.guest.GuestNotFoundException;
 import com.nathdev.welkom.exceptions.invitation.InvitationAlreadyExistsException;
+import com.nathdev.welkom.exceptions.invitation.InvitationNotFoundException;
 import com.nathdev.welkom.exceptions.template.TemplateNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -89,6 +90,15 @@ public class GlobalExceptionHandler {
     ){
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvitationNotFoundException.class)
+    public ResponseEntity<@NotNull Map<String, String>> handleInvitationNotFound(
+            InvitationNotFoundException exception
+    ){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(Map.of("message", exception.getMessage()));
     }
 }
