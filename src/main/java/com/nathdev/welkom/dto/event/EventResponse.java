@@ -18,6 +18,7 @@ public record EventResponse(
         EventsStatus eventStatus,
         PaymentStatus paymentStatus,
         LocalDateTime createdAt,
-        LocalDateTime updateAt
+        LocalDateTime updateAt,
+        String address
 ) {
 }

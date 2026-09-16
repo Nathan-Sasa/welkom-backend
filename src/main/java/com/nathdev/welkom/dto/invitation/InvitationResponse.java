@@ -13,6 +13,7 @@ public record InvitationResponse(
         UUID customizedTemplateUuid,
         RsvpStatus rsvpStatus,
         ScanStatus scanStatus,
-        LocalDateTime scannedAt
+        LocalDateTime scannedAt,
+        UUID accessToken
 ) {
 }

@@ -11,7 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
 @Service
-public class qrCodeGenerateService {
+public class GenerateQrCodeService {
 
     @Value("${urlApp}")
     private String urlApp;

@@ -36,7 +36,6 @@ public class Event {
 
     @Column(
             name = "security_access_key",
-            nullable = false,
             unique = true
     )
     private String securityEventKey;

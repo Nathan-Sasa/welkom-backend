@@ -23,14 +23,12 @@ public class Location {
     private String address;
 
     @Column(
-            nullable = false,
             precision = 10,
             scale = 7
     )
     private BigDecimal latitude;
 
     @Column(
-            nullable = false,
             precision = 10,
             scale = 7
     )
@@ -40,7 +38,6 @@ public class Location {
     @JoinColumn(
             name = "event_id",
             nullable = false
-
     )
     private Event event;
 

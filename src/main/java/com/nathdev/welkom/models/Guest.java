@@ -37,7 +37,7 @@ public class Guest {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
     
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "tables_id")
     private Tables tables;
 

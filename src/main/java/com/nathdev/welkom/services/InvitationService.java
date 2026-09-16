@@ -4,6 +4,10 @@ import com.nathdev.welkom.components.AuthenticateUser;
 import com.nathdev.welkom.dto.invitation.CreateInvitationRequest;
 import com.nathdev.welkom.dto.invitation.InvitationResponse;
 import com.nathdev.welkom.dto.invitation.InvitationResponseDto;
+import com.nathdev.welkom.dto.invitation.PublicInvitationResponse;
+import com.nathdev.welkom.enums.InvitationStatus;
+import com.nathdev.welkom.enums.RsvpStatus;
+import com.nathdev.welkom.enums.ScanStatus;
 import com.nathdev.welkom.exceptions.accessDenied.AccessDeniedCustomException;
 import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateNotFoundException;
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
@@ -16,6 +20,7 @@ import com.nathdev.welkom.repositories.EventRepository;
 import com.nathdev.welkom.repositories.GuestRepository;
 import com.nathdev.welkom.repositories.InvitationRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class InvitationService {
@@ -68,8 +74,11 @@ public class InvitationService {
         invitation.setEvent(event);
         invitation.setGuest(guest);
         invitation.setCustomizedTemplate(customizedTemplates);
+        invitation.setRsvpStatus(RsvpStatus.PENDING);
+        invitation.setScanStatus(ScanStatus.PENDING);
 
         Invitation saved = invitationRepository.save(invitation);
+
         return toResponse(saved);
     }
 
@@ -85,12 +94,12 @@ public class InvitationService {
         }
 
         return invitationRepository
-                .findByEvent(event)
+                .findAllByEvent(event)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
-
+    
     public InvitationResponse findByUuid(UUID uuid) {
         User user = authenticateUser.getUser();
 
@@ -118,7 +127,8 @@ public class InvitationService {
                 invitation.getCustomizedTemplate().getUuid(),
                 invitation.getRsvpStatus(),
                 invitation.getScanStatus(),
-                invitation.getScannedAt()
+                invitation.getScannedAt(),
+                invitation.getAccessToken()
         );
     }
 }

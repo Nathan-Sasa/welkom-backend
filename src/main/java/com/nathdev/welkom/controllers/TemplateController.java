@@ -6,6 +6,8 @@ import com.nathdev.welkom.dto.template.UpdateTemplateRequest;
 import com.nathdev.welkom.models.Template;
 import com.nathdev.welkom.security.JwtUtils;
 import com.nathdev.welkom.services.TemplateService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +26,13 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/templates")
+@Tag(name = "Catalogue", description = "Endpoint pour créer, modifier, supprimer et lire les details d'une catalogue")
 @RequiredArgsConstructor
 public class TemplateController {
     private final TemplateService templateService;
 
     @GetMapping("/list")
+    @Operation(summary = "List des catalogues")
     public ResponseEntity<@NotNull List<TemplateResponse>> getAllTemplates() {
         return ResponseEntity.ok(
                 templateService.getTemplates()
@@ -36,6 +40,7 @@ public class TemplateController {
     }
 
     @GetMapping("/{uuid}")
+    @Operation(summary = "Details d'une catalogue")
     public ResponseEntity<@NotNull TemplateResponse> getTemplateById(@PathVariable UUID uuid) {
         if (uuid == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -44,6 +49,7 @@ public class TemplateController {
     }
 
     @PostMapping("/create")
+    @Operation(summary = "créer ")
     public ResponseEntity<@NotNull TemplateResponse> createInvitation(@RequestBody CreateTemplateRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

@@ -5,6 +5,8 @@ import com.nathdev.welkom.dto.event.EventResponse;
 import com.nathdev.welkom.dto.event.UpdateEventRequest;
 import com.nathdev.welkom.services.EventService;
 import com.nathdev.welkom.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -19,12 +21,14 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/events")
+@Tag(name = "Evénement", description = "Endpoints pour créer, modifier et lire les détails d'événements")
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
     private final UserService userService;
 
     @PostMapping("/create")
+    @Operation(summary = "Créer un nouvel événement")
     public ResponseEntity<@NotNull EventResponse> createEvent(
             @RequestBody CreateEventRequest request
     ) {
@@ -34,14 +38,16 @@ public class EventController {
     }
 
     @GetMapping("/my-events")
+    @Operation(summary = "List des événement d'un utilisateur.")
     public ResponseEntity<@NotNull List<EventResponse>> getMyEvents(
-            @RequestParam Map<String, String> allRequestParams
+//            @RequestParam Map<String, String> allRequestParams
     ) {
         return ResponseEntity
                 .ok(eventService.getMyEvents());
     }
 
     @GetMapping("/{uuid}")
+    @Operation(summary = "Details d'un événement d'un utilisateur.")
     public ResponseEntity<@NotNull EventResponse> getEvent(
             @PathVariable UUID uuid
     ) {
@@ -50,6 +56,7 @@ public class EventController {
     }
 
     @PatchMapping("/{uuid}")
+    @Operation(summary = "Modification d'un événemement par son propiété")
     public ResponseEntity<@NotNull EventResponse> updateEvent(
             @PathVariable UUID uuid,
             @RequestBody UpdateEventRequest request
@@ -59,6 +66,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{uuid}")
+    @Operation(summary = "Suppression d'un événement par son utilisateur.")
     public ResponseEntity<@NotNull Void> deleteEvent(
             @PathVariable UUID uuid
     ) {

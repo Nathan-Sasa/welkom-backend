@@ -9,8 +9,10 @@ import com.nathdev.welkom.enums.PaymentStatus;
 import com.nathdev.welkom.exceptions.accessDenied.AccessDeniedCustomException;
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
 import com.nathdev.welkom.models.Event;
+import com.nathdev.welkom.models.Location;
 import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.EventRepository;
+import com.nathdev.welkom.repositories.LocationRepository;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ public class EventService {
     private EventRepository eventRepository;
     private GenerateKeyService generateKeyService;
     private AuthenticateUser authenticateUser;
+    private LocationRepository locationRepository;
 
     public EventResponse create(
             CreateEventRequest request
@@ -44,10 +47,16 @@ public class EventService {
         event.setImage(request.image());
 
         event.setSecureId(generateKeyService.generateShortNumberKey());
-        event.setSecurityEventKey(generateKeyService.generateShortNumberKey());
+        event.setSecurityEventKey(generateKeyService.generateSecureKey());
         event.setStatus(EventsStatus.PENDING);
         event.setPaymentStatus(PaymentStatus.PENDING);
 
+        Location location = new Location();
+        location.setEvent(event);
+        location.setAddress(request.address());
+//        locationRepository.save(location);
+
+        event.setLocation(location);
         Event saveEvent =  eventRepository.save(event);
 
         return toResponse(saveEvent);
@@ -106,6 +115,10 @@ public class EventService {
             event.setImage(request.image());
         }
 
+        if (request.address() != null) {
+            event.getLocation().setAddress(request.address());
+        }
+
         Event updatedEvent = eventRepository.save(event);
         return toResponse(updatedEvent);
     }
@@ -127,7 +140,8 @@ public class EventService {
                 event.getStatus(),
                 event.getPaymentStatus(),
                 event.getCreatedAt(),
-                event.getUpdatedAt()
+                event.getUpdatedAt(),
+                event.getLocation().getAddress() != null ? event.getLocation().getAddress() : null
         );
     }
 

@@ -10,6 +10,8 @@ import com.nathdev.welkom.repositories.UserRepository;
 import com.nathdev.welkom.security.CustomDetailsService;
 import com.nathdev.welkom.security.JwtUtils;
 import com.nathdev.welkom.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Authentifaction", description = "Endpoints pour enregistrer, connecter et modifier un utilisateur.")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -62,6 +65,7 @@ public class AuthController {
 //        }
 //    }
     @PostMapping("/register")
+    @Operation(summary = "S'enregistrer")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         try {
             if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
@@ -122,6 +126,7 @@ public class AuthController {
 //        }
 //    }
     @PostMapping("/login")
+    @Operation(summary = "Se connecter")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         try {
@@ -168,6 +173,7 @@ public class AuthController {
 //        return userService.refreshToken(request, response);
 //    }
     @PostMapping("/refresh")
+    @Operation(summary = "Rafraichir l'accèss")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtils.getJwtFromCookies(request, "welkom_refresh");
 
@@ -185,19 +191,19 @@ public class AuthController {
                     return ResponseEntity.ok(Map.of("message", "Token mis à jour."));
                 }
             }
-
-
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Jeton de rafraîchissement invalide ou expiré."));
     }
 
     // 4. DÉCONNEXION
     @PostMapping("/logout")
+    @Operation(summary = "Se déconnecter")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         return userService.logout(response);
     }
 
     @GetMapping("/me")
+    @Operation(summary = "Qui suis-je ?")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         return userService.currentUser(request);
     }

@@ -26,11 +26,15 @@ public class Invitation {
     @Column(unique = true, nullable = false)
     private UUID accessToken;
 
+    @UuidGenerator
+    @Column(unique = true, nullable = false)
+    private UUID qrToken;
+
     @Column(name = "rsvp_status", length = 20)
-    private RsvpStatus rsvpStatus = RsvpStatus.PENDING;
+    private RsvpStatus rsvpStatus;
 
     @Column(name = "scan_status", length = 20)
-    private ScanStatus scanStatus = ScanStatus.PENDING;
+    private ScanStatus scanStatus;
 
     @Column(name="scanned_at")
     private LocalDateTime scannedAt;
@@ -43,7 +47,7 @@ public class Invitation {
     @JoinColumn(name = "guest_id", nullable = false)
     private Guest guest;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "customized_template_id",
             nullable = false
