@@ -201,4 +201,26 @@ public class EventService {
 
         return new SecurityEventKeyResponse(event.getSecurityEventKey());
     }
+
+    public  SecurityEventKeyResponse regenerateSecurityEventKey(UUID eventUuid) {
+        User user = authenticateUser.getUser();
+
+        Event event = eventRepository
+                .findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas !");
+        }
+
+        if (event.getPaymentStatus() != PaymentStatus.PAYMENT_SUCCESS) {
+            throw new EventIllegalCustomException("Finalisez la paiement de l'événement pour regénérer à la clé de sécurité !");
+        }
+
+        String newSecurityEventKey = generateKeyService.generateSecurityAccessKey();
+
+        event.setSecurityEventKey(newSecurityEventKey);
+        eventRepository.save(event);
+        return new SecurityEventKeyResponse(newSecurityEventKey);
+    }
 }

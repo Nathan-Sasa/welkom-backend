@@ -91,4 +91,12 @@ public class EventController {
         return  eventService.getSecurityEventKey(eventUuid);
     }
 
+    @PostMapping("/{eventUuid}/security-key/regenerate")
+    @Operation(summary = "Régénération de la clé de sécurité d'un événement.")
+    public SecurityEventKeyResponse regenerateSecurityEventKey(
+            @PathVariable UUID eventUuid
+    ){
+        return eventService.regenerateSecurityEventKey(eventUuid);
+    }
+
 }
