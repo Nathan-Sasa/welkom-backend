@@ -3,6 +3,7 @@ package com.nathdev.welkom.services;
 import com.nathdev.welkom.components.AuthenticateUser;
 import com.nathdev.welkom.dto.event.CreateEventRequest;
 import com.nathdev.welkom.dto.event.EventResponse;
+import com.nathdev.welkom.dto.event.SecurityEventKeyResponse;
 import com.nathdev.welkom.dto.event.UpdateEventRequest;
 import com.nathdev.welkom.enums.EventsStatus;
 import com.nathdev.welkom.enums.PaymentStatus;
@@ -177,5 +178,27 @@ public class EventService {
         }
 
         return toResponse(eventRepository.save(event));
+    }
+
+    public SecurityEventKeyResponse getSecurityEventKey(UUID eventUuid) {
+        User user = authenticateUser.getUser();
+
+        Event event = eventRepository
+                .findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas !");
+        }
+
+        if (event.getPaymentStatus() != PaymentStatus.PAYMENT_SUCCESS) {
+            throw new EventIllegalCustomException("Finalisez la paiement de l'événement pour acceder à la clé de sécurité !");
+        }
+
+        if (event.getSecurityEventKey() == null) {
+            throw new EventIllegalCustomException("La clé de sécurité de l'événement n'a pas encore été générée !");
+        }
+
+        return new SecurityEventKeyResponse(event.getSecurityEventKey());
     }
 }

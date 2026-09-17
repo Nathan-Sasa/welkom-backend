@@ -2,6 +2,7 @@ package com.nathdev.welkom.controllers;
 
 import com.nathdev.welkom.dto.event.CreateEventRequest;
 import com.nathdev.welkom.dto.event.EventResponse;
+import com.nathdev.welkom.dto.event.SecurityEventKeyResponse;
 import com.nathdev.welkom.dto.event.UpdateEventRequest;
 import com.nathdev.welkom.services.EventService;
 import com.nathdev.welkom.services.UserService;
@@ -80,6 +81,14 @@ public class EventController {
             @PathVariable UUID eventUuid
     ) {
         return eventService.activateEvent(eventUuid);
+    }
+
+    @GetMapping("/{eventUuid}/security-key")
+    @Operation(summary = "L'endpoint de récupération de la clé sécurité d'un événement.")
+    public SecurityEventKeyResponse getSecurityEventKey(
+            @PathVariable UUID eventUuid
+    ){
+        return  eventService.getSecurityEventKey(eventUuid);
     }
 
 }

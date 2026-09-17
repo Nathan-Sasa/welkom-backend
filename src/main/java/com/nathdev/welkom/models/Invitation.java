@@ -30,10 +30,12 @@ public class Invitation {
     @Column(unique = true, nullable = false)
     private UUID qrToken;
 
-    @Column(name = "rsvp_status", length = 20)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rsvp_status")
     private RsvpStatus rsvpStatus;
 
-    @Column(name = "scan_status", length = 20)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "scan_status")
     private ScanStatus scanStatus;
 
     @Column(name="scanned_at")
