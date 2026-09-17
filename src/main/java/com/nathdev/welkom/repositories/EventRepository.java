@@ -16,4 +16,5 @@ public interface EventRepository extends JpaRepository<@NotNull Event, @NotNull 
     Optional<Event> findByUuidAndDeletedAtIsNull(UUID uuid);
     Optional<Event> findBySecureId(String secureId);
     List<Event> findAllByUserAndDeletedAtIsNull(User user);
+    Optional<Event> findBySecurityEventKeyAndDeletedAtIsNull(String securityEventKey);
 }

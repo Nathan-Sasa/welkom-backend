@@ -16,6 +16,7 @@ import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.EventRepository;
 import com.nathdev.welkom.repositories.LocationRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +26,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EventService {
-    private EventRepository eventRepository;
-    private GenerateKeyService generateKeyService;
-    private AuthenticateUser authenticateUser;
-    private LocationRepository locationRepository;
+    private final EventRepository eventRepository;
+    private final GenerateKeyService generateKeyService;
+    private final AuthenticateUser authenticateUser;
+    private final EventCheckingSessionService eventCheckingSessionService;
 
     public EventResponse create(
             CreateEventRequest request
@@ -158,6 +159,12 @@ public class EventService {
         eventRepository.save(event);
     }
 
+    // =====================================================================================
+    // Security checking event
+    // =====================================================================================
+
+
+    // Methode temporaire pour activer l'événement. Remplaçable par la methode payment
     public EventResponse activateEvent(UUID eventUuid) {
         User user = authenticateUser.getUser();
 
@@ -222,5 +229,17 @@ public class EventService {
         event.setSecurityEventKey(newSecurityEventKey);
         eventRepository.save(event);
         return new SecurityEventKeyResponse(newSecurityEventKey);
+    }
+
+    public void accessChecking(String securityEventKey) {
+        Event event = eventRepository
+                .findBySecurityEventKeyAndDeletedAtIsNull(securityEventKey)
+                .orElseThrow(() -> new AccessDeniedCustomException("Accès session réfusé !"));
+
+        if (event.getPaymentStatus() != PaymentStatus.PAYMENT_SUCCESS) {
+            throw new AccessDeniedCustomException("Accès réfusé ! Veillez activer l'événement pour acceder à l'espace checking.");
+        }
+
+        eventCheckingSessionService.createSession(event);
     }
 }
