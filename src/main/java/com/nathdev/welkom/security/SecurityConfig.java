@@ -90,19 +90,19 @@ public class SecurityConfig {
                         //Event permissions **********************
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/api/v1/events"
+                                "/api/v1/events/**"
                         ).hasAuthority("ROLE_WLK_USER")
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/api/v1/events/{uuid}"
+                                "/api/v1/events/**"
                         ).hasAuthority("ROLE_WLK_USER")
                         .requestMatchers(
                                 HttpMethod.PATCH,
-                                "/api/v1/events/{uuid}"
+                                "/api/v1/events/**"
                         ).hasAuthority("ROLE_WLK_USER")
                         .requestMatchers(
                                 HttpMethod.DELETE,
-                                        "/api/v1/events/{uuid}"
+                                        "/api/v1/events/**"
                         ).hasAuthority("ROLE_WLK_USER")
                         //****************************************
                         // CustomizedTemplate permissions ********

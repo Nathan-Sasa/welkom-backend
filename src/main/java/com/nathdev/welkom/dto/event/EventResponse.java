@@ -8,17 +8,14 @@ import java.util.UUID;
 
 public record EventResponse(
         UUID uuid,
-        String secureId,
         String title,
         String description,
         LocalDateTime dateEventStart,
         LocalDateTime dateEventEnd,
         Integer estimatedGuests,
-        String image,
+        String cover,
         EventsStatus eventStatus,
         PaymentStatus paymentStatus,
-        LocalDateTime createdAt,
-        LocalDateTime updateAt,
         String address
 ) {
 }

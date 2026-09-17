@@ -183,8 +183,7 @@ public class GuestService {
                 guest.getTelephone(),
                 guest.getCategory(),
                 guest.getTables() != null ? guest.getTables().getUuid() : null,
-                guest.getCreatedAt(),
-                guest.getUpdatedAt()
+                guest.getCreatedAt()
         );
     }
 }

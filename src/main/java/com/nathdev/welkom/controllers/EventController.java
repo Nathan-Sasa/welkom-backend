@@ -74,4 +74,12 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{eventUuid}/activate")
+    @Operation(summary = "Activation de l'événement. Temporaire !")
+    public EventResponse activateEvent(
+            @PathVariable UUID eventUuid
+    ) {
+        return eventService.activateEvent(eventUuid);
+    }
+
 }

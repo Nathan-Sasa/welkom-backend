@@ -27,7 +27,7 @@ public class GenerateKeyService {
 //    Générer un clé secrète
 //    cette clé c'est pour pour la sécurité lors du checking.
 
-    public String generateSecureKey() {
+    public String generateSecurityAccessKey() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
         int keyLength = 14;

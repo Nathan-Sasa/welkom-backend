@@ -7,6 +7,7 @@ import com.nathdev.welkom.dto.event.UpdateEventRequest;
 import com.nathdev.welkom.enums.EventsStatus;
 import com.nathdev.welkom.enums.PaymentStatus;
 import com.nathdev.welkom.exceptions.accessDenied.AccessDeniedCustomException;
+import com.nathdev.welkom.exceptions.event.EventIllegalCustomException;
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
 import com.nathdev.welkom.models.Event;
 import com.nathdev.welkom.models.Location;
@@ -47,7 +48,7 @@ public class EventService {
         event.setImage(request.image());
 
         event.setSecureId(generateKeyService.generateShortNumberKey());
-        event.setSecurityEventKey(generateKeyService.generateSecureKey());
+//        event.setSecurityEventKey(generateKeyService.generateSecurityAccessKey());
         event.setStatus(EventsStatus.PENDING);
         event.setPaymentStatus(PaymentStatus.PENDING);
 
@@ -130,7 +131,6 @@ public class EventService {
     private EventResponse toResponse(Event event) {
         return new  EventResponse(
                 event.getUuid(),
-                event.getSecureId(),
                 event.getTitle(),
                 event.getDescription(),
                 event.getDateEventStart(),
@@ -139,8 +139,6 @@ public class EventService {
                 event.getImage(),
                 event.getStatus(),
                 event.getPaymentStatus(),
-                event.getCreatedAt(),
-                event.getUpdatedAt(),
                 event.getLocation().getAddress() != null ? event.getLocation().getAddress() : null
         );
     }
@@ -157,5 +155,27 @@ public class EventService {
 
         event.setDeletedAt(LocalDateTime.now());
         eventRepository.save(event);
+    }
+
+    public EventResponse activateEvent(UUID eventUuid) {
+        User user = authenticateUser.getUser();
+
+        Event event = eventRepository
+                .findByUuidAndDeletedAtIsNull(eventUuid)
+                .orElseThrow(() -> new EventNotFoundException(eventUuid));
+
+        if (!event.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedCustomException("Cet événement ne vous appartient pas !");
+        }
+
+        if (event.getPaymentStatus() != PaymentStatus.PAYMENT_SUCCESS){
+            throw new EventIllegalCustomException("L'événement doit être payé avant son activation.");
+        }
+
+        if (event.getSecurityEventKey() == null) {
+            event.setSecurityEventKey(generateKeyService.generateSecurityAccessKey());
+        }
+
+        return toResponse(eventRepository.save(event));
     }
 }

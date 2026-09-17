@@ -11,7 +11,6 @@ public record GuestResponse(
         String telephone,
         String category,
         UUID tableUuid,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime addedAt
 ) {
 }

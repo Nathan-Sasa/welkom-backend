@@ -5,5 +5,4 @@ public enum RsvpStatus {
     CONFIRM,
     DECLINED,
     INACTIVE,
-
 }

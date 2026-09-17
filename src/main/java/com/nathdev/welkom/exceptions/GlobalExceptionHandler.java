@@ -5,6 +5,7 @@ import com.nathdev.welkom.exceptions.badRequest.BadRequestCustomException;
 import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedAccessDeniedException;
 import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateAlreadyExistsException;
 import com.nathdev.welkom.exceptions.customizedTemplate.CustomizedTemplateNotFoundException;
+import com.nathdev.welkom.exceptions.event.EventIllegalCustomException;
 import com.nathdev.welkom.exceptions.event.EventNotFoundException;
 import com.nathdev.welkom.exceptions.exist.AlreadyExistCustomException;
 import com.nathdev.welkom.exceptions.guest.GuestNotFoundException;
@@ -80,6 +81,15 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(EventIllegalCustomException.class)
+    public ResponseEntity<@NotNull Map<String, String>> handleEventIllegalCustomException(
+            EventIllegalCustomException exception
+    ){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", exception.getMessage()));
     }
 
