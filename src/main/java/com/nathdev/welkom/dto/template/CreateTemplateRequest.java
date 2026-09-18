@@ -51,22 +51,22 @@ public record CreateTemplateRequest(
         String fontBody,
 
         @Schema(
-                description = "Image contenue de la catalogue, optionale"
+                description = "Image contenue de la catalogue, optionnel"
         )
         String image1,
 
         @Schema(
-                description = "Image contenue 2 de la catalogue, optionale"
+                description = "Image contenue 2 de la catalogue, optionnel"
         )
         String image2,
 
         @Schema(
-                description = "Image contenue 3 de la catalogue, optionale"
+                description = "Image contenue 3 de la catalogue, optionnel"
         )
         String image3,
 
         @Schema(
-                description = "Activer le cadre de la catalogue, optionale"
+                description = "Activer le cadre de la catalogue, optional"
         )
         boolean hasCadre,
 

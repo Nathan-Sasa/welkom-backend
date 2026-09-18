@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,5 +39,15 @@ public class EventCheckingSessionService {
         }
 
         return session;
+    }
+
+    public void revokeActiveSessions(Event event){
+        List<EventCheckingSession> sessions =
+                sessionRepository.findAllByEventAndRevokedAtIsNull(event);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        sessions.forEach(session -> session.setExpiresAt(now));
+        sessionRepository.saveAll(sessions);
     }
 }

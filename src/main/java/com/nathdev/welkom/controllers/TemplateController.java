@@ -57,6 +57,7 @@ public class TemplateController {
     }
 
     @PatchMapping("/{uuid}")
+    @Operation(summary = "Modifier une catalogue")
     public ResponseEntity<@NotNull TemplateResponse> updateTemplate(
             @PathVariable UUID uuid,
             @RequestBody UpdateTemplateRequest request
@@ -66,6 +67,7 @@ public class TemplateController {
 
 
     @DeleteMapping("/{uuid}")
+    @Operation(summary = "Supprimer une catalogue")
     public ResponseEntity<@NotNull Void> deleteTemplate(
             @PathVariable UUID uuid
     ) {

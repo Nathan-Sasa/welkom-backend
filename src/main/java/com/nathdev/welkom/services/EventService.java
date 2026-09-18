@@ -14,8 +14,6 @@ import com.nathdev.welkom.models.Event;
 import com.nathdev.welkom.models.Location;
 import com.nathdev.welkom.models.User;
 import com.nathdev.welkom.repositories.EventRepository;
-import com.nathdev.welkom.repositories.LocationRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -50,7 +48,6 @@ public class EventService {
         event.setImage(request.image());
 
         event.setSecureId(generateKeyService.generateShortNumberKey());
-//        event.setSecurityEventKey(generateKeyService.generateSecurityAccessKey());
         event.setStatus(EventsStatus.PENDING);
         event.setPaymentStatus(PaymentStatus.PENDING);
 
@@ -163,7 +160,6 @@ public class EventService {
     // Security checking event
     // =====================================================================================
 
-
     // Methode temporaire pour activer l'événement. Remplaçable par la methode payment
     public EventResponse activateEvent(UUID eventUuid) {
         User user = authenticateUser.getUser();
@@ -223,6 +219,8 @@ public class EventService {
         if (event.getPaymentStatus() != PaymentStatus.PAYMENT_SUCCESS) {
             throw new EventIllegalCustomException("Finalisez la paiement de l'événement pour regénérer à la clé de sécurité !");
         }
+
+        eventCheckingSessionService.revokeActiveSessions(event);
 
         String newSecurityEventKey = generateKeyService.generateSecurityAccessKey();
 
