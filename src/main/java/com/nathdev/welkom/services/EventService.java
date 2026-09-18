@@ -156,11 +156,12 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    // =====================================================================================
-    // Security checking event
-    // =====================================================================================
 
-    // Methode temporaire pour activer l'événement. Remplaçable par la methode payment
+    // ================================================================
+    // Activate EventSecurity & Security Key Access
+    // ================================================================
+
+    /* Methode temporaire pour activer l'événement. Remplaçable par la methode payment */
     public EventResponse activateEvent(UUID eventUuid) {
         User user = authenticateUser.getUser();
 
@@ -182,6 +183,7 @@ public class EventService {
 
         return toResponse(eventRepository.save(event));
     }
+
 
     public SecurityEventKeyResponse getSecurityEventKey(UUID eventUuid) {
         User user = authenticateUser.getUser();
@@ -205,6 +207,7 @@ public class EventService {
         return new SecurityEventKeyResponse(event.getSecurityEventKey());
     }
 
+
     public  SecurityEventKeyResponse regenerateSecurityEventKey(UUID eventUuid) {
         User user = authenticateUser.getUser();
 
@@ -225,19 +228,9 @@ public class EventService {
         String newSecurityEventKey = generateKeyService.generateSecurityAccessKey();
 
         event.setSecurityEventKey(newSecurityEventKey);
+
         eventRepository.save(event);
+
         return new SecurityEventKeyResponse(newSecurityEventKey);
-    }
-
-    public void accessChecking(String securityEventKey) {
-        Event event = eventRepository
-                .findBySecurityEventKeyAndDeletedAtIsNull(securityEventKey)
-                .orElseThrow(() -> new AccessDeniedCustomException("Accès session réfusé !"));
-
-        if (event.getPaymentStatus() != PaymentStatus.PAYMENT_SUCCESS) {
-            throw new AccessDeniedCustomException("Accès réfusé ! Veillez activer l'événement pour acceder à l'espace checking.");
-        }
-
-        eventCheckingSessionService.createSession(event);
     }
 }

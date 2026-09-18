@@ -4,6 +4,7 @@ import com.nathdev.welkom.dto.event.CreateEventRequest;
 import com.nathdev.welkom.dto.event.EventResponse;
 import com.nathdev.welkom.dto.event.SecurityEventKeyResponse;
 import com.nathdev.welkom.dto.event.UpdateEventRequest;
+import com.nathdev.welkom.services.CheckingService;
 import com.nathdev.welkom.services.EventService;
 import com.nathdev.welkom.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
+    private final CheckingService checkingService;
     private final UserService userService;
 
     @PostMapping("/create")
@@ -74,6 +76,7 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
+    // Temporaire ==============================================
     @PostMapping("/{eventUuid}/activate")
     @Operation(summary = "Activation de l'événement. Temporaire !")
     public EventResponse activateEvent(

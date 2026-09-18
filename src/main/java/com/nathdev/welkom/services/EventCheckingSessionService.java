@@ -1,6 +1,5 @@
 package com.nathdev.welkom.services;
 
-import com.nathdev.welkom.enums.PaymentStatus;
 import com.nathdev.welkom.exceptions.accessDenied.AccessDeniedCustomException;
 import com.nathdev.welkom.models.Event;
 import com.nathdev.welkom.models.EventCheckingSession;
@@ -17,7 +16,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventCheckingSessionService {
     private final EventCheckingSessionRepository sessionRepository;
-    private final EventRepository eventRepository;
 
     public EventCheckingSession createSession(Event event) {
         EventCheckingSession session = new EventCheckingSession();
@@ -47,7 +45,8 @@ public class EventCheckingSessionService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        sessions.forEach(session -> session.setExpiresAt(now));
+        sessions.forEach(session -> session.setRevokedAt(now));
+
         sessionRepository.saveAll(sessions);
     }
 }
